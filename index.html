@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Оценщик бизнес-идей для фаундеров</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
@@ -461,12 +460,6 @@ textarea{min-height:54px}
 </div>
 
 <script>
-// ===== TELEGRAM WEB APP INIT =====
-if (window.Telegram && window.Telegram.WebApp) {
-  Telegram.WebApp.ready();
-  Telegram.WebApp.expand();
-}
-
 // ===== STATE =====
 const S={q1:null,q2:[],q3a:'',q3b:'',q3c:'',q3d:'',q3e:'',q4:null,q5:[],q6a:'',q6b:'',q6c:'',q6d:'',q6e:'',q6f:'',q7a:null,q7b:null,q8:null,q9team:null,q9:null};
 let lastR=null,lastC=null;
@@ -655,6 +648,23 @@ function renderReport(r,c,st){
     return '<div class="action-item"><span class="action-num">'+(i+1)+'.</span><span>'+a+'</span></div>';
   }).join('');
 
+  // MONETIZATION AUDIT
+  var monAudit='';
+  if(r.monetization_audit){
+    var ma=r.monetization_audit;
+    var maColor=ma.verdict==='optimal'?'var(--green)':'var(--yellow)';
+    var maBg=ma.verdict==='optimal'?'var(--green-bg)':'var(--yellow-bg)';
+    var maBorder=ma.verdict==='optimal'?'var(--green-border)':'var(--yellow-border)';
+    var maIcon=ma.verdict==='optimal'?'✅':'⚠️';
+    monAudit='<div class="section-title">Аудит монетизации</div>'+
+      '<div style="background:'+maBg+';border:1px solid '+maBorder+';border-radius:var(--radius-sm);padding:12px 14px">'+
+        '<div style="font-size:12px;color:var(--text2);margin-bottom:6px">Выбранная модель: <b style="color:var(--text)">'+ma.chosen+'</b></div>'+
+        '<div style="font-size:13px;font-weight:500;color:'+maColor+';margin-bottom:4px">'+maIcon+' '+(ma.verdict==='optimal'?'Модель оптимальна для вашего случая':'Рекомендуем изменить модель')+'</div>'+
+        (ma.recommended?'<div style="font-size:12px;color:var(--text2);margin-bottom:4px">Рекомендуем: <b style="color:var(--text)">'+ma.recommended+'</b></div>':'')+
+        '<div style="font-size:12px;color:var(--text2);line-height:1.5">'+ma.reason+'</div>'+
+      '</div>';
+  }
+
   return '<div class="verdict-card '+vc+'">'+
     '<div class="verdict-eyebrow">Вердикт · '+r.score_total+'/100</div>'+
     '<div class="verdict-heading"><i class="ti '+vIcon+'"></i> '+vTitle+'</div>'+
@@ -664,6 +674,7 @@ function renderReport(r,c,st){
   '<div class="metrics-block"><div>'+metricsRows+'</div>'+(metricsNote?'<div class="metrics-note">'+metricsNote+'</div>':'')+'</div>'+
   '<div class="section-title">Скоркард</div>'+
   '<div class="score-grid">'+scHTML+'</div>'+
+  monAudit+
   '<div class="section-title">Риски</div>'+
   '<div class="risk-list">'+riskHTML+'</div>'+
   '<div class="section-title">Аудит каналов</div>'+
@@ -697,30 +708,104 @@ function startAnalyze(){
   tick();
 }
 
+// URL прокси-сервера на Railway — заменить на реальный домен после деплоя
+var PROXY_URL='https://your-bot.railway.app/analyze';
+
+// ===== SANITY CHECK =====
+function sanityCheck(s,c){
+  var warnings=[];
+  var idea=(s.q3a+' '+s.q3b+' '+s.q3c).toLowerCase();
+  // Космос / спутники / ракеты при бюджете меньше $1M
+  var spaceKeywords=['спутник','ракета','starlink','космос','orbit','satellite','rocket'];
+  if(spaceKeywords.some(function(k){return idea.indexOf(k)>=0})&&c.budget<1000000){
+    warnings.push({type:'CRITICAL',title:'Критическое несоответствие бюджета',desc:'Запуск спутников / космическая инфраструктура требует минимум $50–100 млн. Указанный бюджет делает идею нереализуемой в текущем виде.'});
+  }
+  // Физическое производство при бюджете меньше $50K
+  if(s.q1==='hardware'&&c.budget>0&&c.budget<50000){
+    warnings.push({type:'CRITICAL',title:'Бюджет несовместим с железом',desc:'Производство физических устройств требует минимум $50K на MVP. Рассмотрите software-only версию или найдите партнёра-производителя.'});
+  }
+  // Бюджет 0 при любой модели
+  if(s.q6e&&c.budget===0){
+    warnings.push({type:'WARNING',title:'Бюджет указан как 0',desc:'Любой запуск требует минимальных вложений. Уточните реальный доступный бюджет для точного расчёта runway.'});
+  }
+  return warnings;
+}
+
+function showSanityWarnings(warnings){
+  var html=warnings.map(function(w){
+    var col=w.type==='CRITICAL'?'var(--red)':'var(--yellow)';
+    var bg=w.type==='CRITICAL'?'var(--red-bg)':'var(--yellow-bg)';
+    var border=w.type==='CRITICAL'?'var(--red-border)':'var(--yellow-border)';
+    return '<div style="background:'+bg+';border:1px solid '+border+';border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:8px">'+
+      '<div style="font-size:13px;font-weight:600;color:'+col+';margin-bottom:4px">⚠️ '+w.title+'</div>'+
+      '<div style="font-size:12px;color:var(--text2);line-height:1.5">'+w.desc+'</div>'+
+    '</div>';
+  }).join('');
+  document.getElementById('result-content').innerHTML=
+    '<div style="margin-bottom:1.5rem">'+html+'</div>'+
+    '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;font-size:13px;color:var(--text2)">'+
+      'Анализ продолжен с учётом предупреждений выше. Вердикт отражает реальное положение дел.'+
+    '</div>';
+}
+
 async function runAI(){
   var c=compute(S);
+  // Sanity check перед отправкой
+  var warnings=sanityCheck(S,c);
   var prompt=buildPrompt(S,c);
   try{
-    var resp=await fetch('https://api.anthropic.com/v1/messages',{
+    var resp=await fetch(PROXY_URL,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-6',max_tokens:1200,
-        system:'Ты эксперт по оценке стартапов. Возвращай ТОЛЬКО JSON без markdown. Не пересчитывай переданные метрики — используй их как факты. Для каждой оценки в scores дай короткое (макс 1 предложение, до 90 символов) объяснение конкретно ПОЧЕМУ такая цифра — без воды, по сути. Структура: {"verdict":"Launch|Rework|Reject","score_total":0-100,"summary":"2-3 предложения","scores":{"market":{"value":0-10,"why":"кратко почему"},"model":{"value":0-10,"why":"кратко почему"},"competition":{"value":0-10,"why":"кратко почему"},"economics":{"value":0-10,"why":"кратко почему"},"execution":{"value":0-10,"why":"кратко почему"},"regulation":{"value":0-10,"why":"кратко почему"}},"risks":[{"level":"high|med|low","title":"","desc":""}],"channels":[{"name":"","potential":"Высокий|Средний|Низкий","note":""}],"forecast":{"bear":"","base":"","bull":"","bear_arr":"","base_arr":"","bull_arr":""},"geo_scalability":"Высокая|Средняя|Низкая","seasonality":"Высокая|Умеренная|Низкая","structural_risk_comments":[""],"actions":["","",""]}',
-        messages:[{role:'user',content:prompt}]
-      })
+      body:JSON.stringify({answers:S,computed:c,prompt:prompt})
     });
-    var data=await resp.json();
-    var raw=data.content.map(function(x){return x.text||''}).join('');
-    var result=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    if(!resp.ok)throw new Error('HTTP '+resp.status);
+    var result=await resp.json();
     lastR=result;lastC=c;
-    document.getElementById('result-content').innerHTML=renderReport(result,c,S);
+    var html='';
+    if(warnings.length>0)html=showSanityWarningsHTML(warnings);
+    document.getElementById('result-content').innerHTML=html+renderReport(result,c,S);
     showStep(12);
   }catch(e){
-    var fb=fallback();lastR=fb;lastC=c;
-    document.getElementById('result-content').innerHTML=renderReport(fb,c,S);
-    showStep(12);
+    lastC=c;
+    showErrorScreen(e.message,warnings,c);
   }
+}
+
+function showSanityWarningsHTML(warnings){
+  return warnings.map(function(w){
+    var col=w.type==='CRITICAL'?'var(--red)':'var(--yellow)';
+    var bg=w.type==='CRITICAL'?'var(--red-bg)':'var(--yellow-bg)';
+    var border=w.type==='CRITICAL'?'var(--red-border)':'var(--yellow-border)';
+    return '<div style="background:'+bg+';border:1px solid '+border+';border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:8px">'+
+      '<div style="font-size:13px;font-weight:600;color:'+col+';margin-bottom:4px">⚠️ '+w.title+'</div>'+
+      '<div style="font-size:12px;color:var(--text2);line-height:1.5">'+w.desc+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+function showErrorScreen(errMsg,warnings,c){
+  var html='';
+  if(warnings.length>0)html=showSanityWarningsHTML(warnings);
+  html+='<div class="verdict-card v-reject" style="margin-top:'+(warnings.length>0?'1rem':'0')+'">';
+  html+='<div class="verdict-eyebrow">Ошибка анализа</div>';
+  html+='<div class="verdict-heading" style="font-size:20px"><i class="ti ti-wifi-off"></i> Не удалось получить AI-анализ</div>';
+  html+='<div class="verdict-text">Сервер анализа временно недоступен. Пожалуйста, попробуйте через несколько минут.<br><br>';
+  if(errMsg)html+='<span style="font-size:11px;opacity:0.5">Техническая информация: '+errMsg+'</span>';
+  html+='</div></div>';
+  // Показываем только детерминированные данные которые JS уже посчитал
+  html+='<div class="section-title">Расчётные данные (посчитаны локально)</div>';
+  html+='<div class="metrics-block">';
+  var ratio=c.ratio!==null?c.ratio+'x · '+GRADE_LABEL[c.grade]:'— нет данных';
+  html+='<div class="metrics-row"><span class="metrics-label">LTV / CAC</span><span class="metrics-val">'+ratio+'</span></div>';
+  html+='<div class="metrics-row"><span class="metrics-label">Payback</span><span class="metrics-val">'+(c.payback!==null?c.payback+' мес.':'—')+'</span></div>';
+  html+='<div class="metrics-row"><span class="metrics-label">Churn'+(c.churnAssumed?' *':'')+'</span><span class="metrics-val">'+c.churn+'%</span></div>';
+  html+='<div class="metrics-row"><span class="metrics-label">Runway</span><span class="metrics-val">'+(c.runway?c.runway+' мес.':'нет данных о бюджете')+'</span></div>';
+  html+='</div>';
+  html+='<button class="btn-next" style="width:100%;justify-content:center;margin-top:1rem" onclick="startAnalyze()"><i class="ti ti-refresh"></i> Попробовать снова</button>';
+  html+='<button class="btn-restart" onclick="restartQuiz()">↺ Начать заново</button>';
+  document.getElementById('result-content').innerHTML=html;
+  showStep(12);
 }
 
 function buildPrompt(s,c){
@@ -739,12 +824,9 @@ function buildPrompt(s,c){
   '\nChurn: '+c.churn+'%'+(c.churnAssumed?' (типовой для модели)':'')+
   '\nLTV: '+(c.ltv||'нет данных')+(c.ltvAssumed?' (расчётный: чек/churn)':'')+
   '\nRunway: '+(c.runway?c.runway+' мес.':'нет данных о бюджете')+
-  '\n\nСТРУКТУРНЫЕ РИСКИ АВТОДЕТЕКТ:\n'+fl+'\n\nВерни ТОЛЬКО JSON.';
-}
-
-// ===== FALLBACK =====
-function fallback(){
-  return{verdict:"Rework",score_total:63,summary:"Идея имеет реальный потенциал в нише с растущим спросом, однако конкуренция с крупными экосистемами и неподтверждённая юнит-экономика требуют проверки перед активным масштабированием. Рекомендуется провести 20+ custdev-интервью до написания кода.",scores:{market:{value:7,why:"Растущий спрос, но рынок уже частично занят"},model:{value:6,why:"Модель жизнеспособна, требует доводки экономики"},competition:{value:5,why:"Крупные экосистемы могут скопировать функцию"},economics:{value:5,why:"LTV/CAC ratio пока ниже целевого уровня 3x"},execution:{value:6,why:"Опыт команды смежный, не профильный"},regulation:{value:6,why:"Ниша стабильна, риски умеренные"}},risks:[{level:"high",title:"Конкуренция с платформами",desc:"Крупные экосистемы могут скопировать ключевую функцию"},{level:"med",title:"LTV/CAC не подтверждён",desc:"Реальные числа могут существенно отличаться от гипотез"},{level:"low",title:"Регуляторные изменения",desc:"Ниша стабильна, но возможны новые требования"}],channels:[{name:"SEO / Контент",potential:"Высокий",note:"Долгосрочный актив с низким CAC"},{name:"Партнёрства",potential:"Средний",note:"Качественный трафик, но медленный старт"},{name:"Платная реклама",potential:"Средний",note:"Требует проверки unit-economics"}],forecast:{bear:"x3 ARR",base:"x10 ARR",bull:"x25 ARR",bear_arr:"~300K ₽",base_arr:"~1.5M ₽",bull_arr:"~5M ₽"},geo_scalability:"Средняя",seasonality:"Низкая",structural_risk_comments:["Проверьте intermediary dilemma до запуска"],actions:["Проведите 20+ custdev-интервью до написания кода","Установите LTV/CAC ≥ 3x как стоп-сигнал для масштабирования","Запустите микро-MVP за 2–4 недели для проверки спроса"]};
+  '\n\nСТРУКТУРНЫЕ РИСКИ АВТОДЕТЕКТ:\n'+fl+
+  '\n\nАУДИТ МОНЕТИЗАЦИИ: Если выбранная модель монетизации ('+s.q4+') не оптимальна для этой идеи и аудитории — обязательно укажи это. Добавь в JSON поле monetization_audit: {"chosen":"'+s.q4+'","verdict":"optimal|suboptimal","recommended":"название лучшей модели или null","reason":"почему лучше или почему текущая хороша"}. Примеры когда менять: freemium+B2B высокий чек → прямые продажи; подписка+редкое использование → pay-per-use; комиссия+маленький рынок → подписка.'+
+  '\n\nВерни ТОЛЬКО JSON.';
 }
 
 // ===== EXPORT =====
