@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Оценщик бизнес-идей для фаундеров</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0F0F13;--bg2:#1A1A24;--bg3:#22222F;--bg4:#2A2A3A;
+  --border:#2E2E3E;--border2:#3A3A4E;
+  --text:#F0EEF8;--text2:#9997B0;--text3:#5C5A72;
+  --accent:#7C6FFF;--accent-bg:rgba(124,111,255,0.12);--accent-border:rgba(124,111,255,0.35);
+  --green:#00C98D;--green-bg:rgba(0,201,141,0.1);--green-border:rgba(0,201,141,0.3);
+  --yellow:#FFB020;--yellow-bg:rgba(255,176,32,0.1);--yellow-border:rgba(255,176,32,0.3);
+  --red:#FF4D6A;--red-bg:rgba(255,77,106,0.1);--red-border:rgba(255,77,106,0.3);
+  --radius:10px;--radius-sm:7px;
+  --font:'Inter',system-ui,sans-serif;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.6;min-height:100vh}
+.shell{max-width:700px;margin:0 auto;padding:2rem 1.5rem 4rem}
+
+/* HEADER */
+.header{text-align:center;margin-bottom:2.5rem}
+.badge{display:inline-flex;align-items:center;gap:6px;background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:100px;padding:4px 14px;font-size:12px;color:var(--accent);font-weight:500;margin-bottom:1rem}
+.header h1{font-size:28px;font-weight:600;letter-spacing:-0.02em;margin-bottom:0.5rem}
+.header p{color:var(--text2);font-size:14px}
+
+/* TABS */
+.tabs{display:flex;gap:4px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:4px;margin-bottom:2rem}
+.tab{flex:1;padding:8px;border-radius:var(--radius-sm);border:none;background:transparent;color:var(--text2);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font);transition:all 0.15s}
+.tab:hover{color:var(--text);background:var(--bg3)}
+.tab.active{background:var(--bg4);color:var(--text);border:1px solid var(--border2)}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* PROGRESS */
+.progress-wrap{margin-bottom:1.5rem}
+.progress-meta{display:flex;justify-content:space-between;font-size:12px;color:var(--text3);margin-bottom:6px}
+.progress-bar{height:3px;background:var(--bg3);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:var(--accent);border-radius:2px;transition:width 0.4s ease}
+
+/* STEP */
+.step-label{font-size:11px;color:var(--text3);letter-spacing:0.07em;text-transform:uppercase;margin-bottom:4px}
+.step-title{font-size:20px;font-weight:600;letter-spacing:-0.01em;margin-bottom:4px}
+.step-sub{font-size:13px;color:var(--text2);margin-bottom:1.5rem;line-height:1.5}
+
+/* OPTIONS */
+.opt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:1.5rem}
+.opt{border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;cursor:pointer;font-size:13px;color:var(--text2);background:var(--bg2);text-align:left;transition:all 0.15s;line-height:1.4;font-family:var(--font)}
+.opt:hover{background:var(--bg3);border-color:var(--border2);color:var(--text)}
+.opt.sel{border-color:var(--accent-border);background:var(--accent-bg);color:var(--accent)}
+.opt-icon{font-size:17px;display:block;margin-bottom:4px;opacity:0.7}
+.opt.sel .opt-icon{opacity:1}
+
+/* FIELDS */
+.field-wrap{margin-bottom:1rem}
+.field-label{font-size:12px;color:var(--text2);margin-bottom:5px;display:flex;justify-content:space-between;align-items:baseline}
+.field-hint{font-size:11px;color:var(--text3)}
+.field-label-main{font-size:13px;color:var(--text);margin-bottom:5px;font-weight:500}
+textarea,input[type=text],input[type=number]{
+  width:100%;border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:9px 12px;font-size:13px;font-family:var(--font);color:var(--text);
+  background:var(--bg2);resize:vertical;transition:border 0.15s;outline:none
+}
+textarea:focus,input:focus{border-color:var(--accent-border);background:var(--bg3)}
+textarea{min-height:54px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.num-row{display:flex;gap:8px}
+.num-row input{flex:1}
+.btn-unknown{font-size:12px;padding:0 12px;height:37px;border-radius:var(--radius-sm);border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;white-space:nowrap;font-family:var(--font);transition:all 0.15s}
+.btn-unknown:hover{background:var(--bg3);color:var(--text)}
+.btn-unknown.active{background:var(--accent-bg);color:var(--accent);border-color:var(--accent-border)}
+.field-note{display:none;font-size:11px;color:var(--text3);margin-top:5px;line-height:1.5;padding:6px 10px;background:var(--bg3);border-radius:var(--radius-sm);border-left:2px solid var(--border2)}
+.field-note.show{display:block}
+
+/* NAV */
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border)}
+.btn-back{background:transparent;border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 18px;font-size:13px;color:var(--text2);cursor:pointer;font-family:var(--font);transition:all 0.15s}
+.btn-back:hover{background:var(--bg3);color:var(--text)}
+.btn-next{background:var(--accent);border:none;border-radius:var(--radius-sm);padding:9px 24px;font-size:13px;font-weight:600;color:#fff;cursor:pointer;font-family:var(--font);transition:opacity 0.15s;display:flex;align-items:center;gap:6px}
+.btn-next:hover{opacity:0.88}
+.btn-next:disabled{opacity:0.3;cursor:not-allowed}
+
+/* ANALYZING */
+.analyzing{text-align:center;padding:3rem 0}
+.pulse-wrap{position:relative;width:72px;height:72px;margin:0 auto 1.5rem}
+.pulse-ring{position:absolute;inset:0;border-radius:50%;border:1.5px solid var(--accent);animation:pulse-out 1.8s ease-out infinite;opacity:0}
+.pulse-ring:nth-child(2){animation-delay:0.6s}
+.pulse-inner{position:absolute;inset:8px;border-radius:50%;background:var(--accent-bg);border:1px solid var(--accent-border);display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--accent)}
+@keyframes pulse-out{0%{transform:scale(0.7);opacity:0.8}100%{transform:scale(1.3);opacity:0}}
+.analyze-list{list-style:none;text-align:left;display:inline-block;margin-top:1.5rem}
+.analyze-item{font-size:13px;color:var(--text3);padding:5px 0;display:flex;align-items:center;gap:10px;transition:color 0.3s}
+.analyze-item.active-item{color:var(--text)}
+.analyze-item.done{color:var(--green)}
+.analyze-item .ti{font-size:14px}
+
+/* REPORT */
+.verdict-card{border-radius:var(--radius);padding:1.5rem;margin-bottom:1.5rem;border:1px solid}
+.v-launch{background:var(--green-bg);border-color:var(--green-border)}
+.v-rework{background:var(--yellow-bg);border-color:var(--yellow-border)}
+.v-reject{background:var(--red-bg);border-color:var(--red-border)}
+.verdict-eyebrow{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px}
+.v-launch .verdict-eyebrow{color:var(--green)}
+.v-rework .verdict-eyebrow{color:var(--yellow)}
+.v-reject .verdict-eyebrow{color:var(--red)}
+.verdict-heading{font-size:28px;font-weight:700;letter-spacing:-0.02em;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.v-launch .verdict-heading{color:var(--green)}
+.v-rework .verdict-heading{color:var(--yellow)}
+.v-reject .verdict-heading{color:var(--red)}
+.verdict-text{font-size:13px;line-height:1.7;opacity:0.85}
+
+.section-title{font-size:11px;font-weight:600;letter-spacing:0.07em;color:var(--text3);text-transform:uppercase;margin:2rem 0 0.75rem;padding-top:1.25rem;border-top:1px solid var(--border)}
+
+/* METRICS TABLE */
+.metrics-block{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:1rem}
+.metrics-row{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;border-bottom:1px solid var(--border);font-size:13px}
+.metrics-row:last-child{border-bottom:none}
+.metrics-label{color:var(--text2)}
+.metrics-val{font-weight:500}
+.metrics-note{font-size:11px;color:var(--text3);padding:8px 14px;border-top:1px solid var(--border);line-height:1.5}
+
+/* SCORECARD */
+.score-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem}
+.score-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;cursor:pointer;transition:all 0.15s;position:relative}
+.score-card:hover{border-color:var(--border2);background:var(--bg3)}
+.score-card.expanded{border-color:var(--accent-border);background:var(--bg3)}
+.score-name{font-size:11px;color:var(--text3);margin-bottom:4px;display:flex;align-items:center;justify-content:space-between}
+.score-name .ti-chevron-down{font-size:12px;transition:transform 0.2s;color:var(--text3)}
+.score-card.expanded .ti-chevron-down{transform:rotate(180deg);color:var(--accent)}
+.score-num{font-size:22px;font-weight:700}
+.score-sub{font-size:11px;color:var(--text3);margin-top:1px}
+.score-bar{height:3px;background:var(--bg4);border-radius:2px;margin-top:8px;overflow:hidden}
+.score-fill{height:100%;border-radius:2px}
+.score-detail{display:none;font-size:12px;color:var(--text2);line-height:1.5;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.score-card.expanded .score-detail{display:block}
+
+/* RISKS */
+.risk-list{display:flex;flex-direction:column;gap:8px;margin-bottom:1rem}
+.risk-item{border-radius:var(--radius-sm);padding:10px 14px;border:1px solid;display:flex;gap:12px;align-items:flex-start}
+.risk-item.high{background:var(--red-bg);border-color:var(--red-border)}
+.risk-item.med{background:var(--yellow-bg);border-color:var(--yellow-border)}
+.risk-item.low{background:var(--green-bg);border-color:var(--green-border)}
+.risk-icon{font-size:15px;margin-top:1px;flex-shrink:0}
+.risk-item.high .risk-icon{color:var(--red)}
+.risk-item.med .risk-icon{color:var(--yellow)}
+.risk-item.low .risk-icon{color:var(--green)}
+.risk-title{font-size:13px;font-weight:500;margin-bottom:2px}
+.risk-desc{font-size:12px;color:var(--text2);line-height:1.5}
+
+/* CHANNELS */
+.channel-item{display:flex;justify-content:space-between;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px;gap:12px}
+.channel-item:last-child{border-bottom:none}
+.channel-name{color:var(--text)}
+.channel-right{text-align:right;flex-shrink:0}
+.channel-pot{font-size:12px;font-weight:500}
+.channel-note{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* FORECAST */
+.forecast-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:1rem}
+.fc-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px}
+.fc-scenario{font-size:11px;color:var(--text3);margin-bottom:6px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em}
+.fc-num{font-size:19px;font-weight:700;margin-bottom:2px}
+.fc-note{font-size:11px;color:var(--text3)}
+.fc-bear .fc-num{color:var(--red)}
+.fc-base .fc-num{color:var(--accent)}
+.fc-bull .fc-num{color:var(--green)}
+
+/* STRUCT RISKS */
+.struct-wrap{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:0.5rem}
+.struct-tag{font-size:11px;padding:3px 10px;border-radius:100px;background:var(--bg3);color:var(--text2);border:1px solid var(--border2)}
+.struct-comment{font-size:12px;color:var(--text2);margin-top:8px;padding:8px 12px;background:var(--bg2);border-radius:var(--radius-sm);border-left:2px solid var(--border2);line-height:1.5}
+
+/* INFO PAIR */
+.info-pair{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem}
+.info-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px}
+.info-card-label{font-size:11px;color:var(--text3);margin-bottom:4px}
+.info-card-val{font-size:15px;font-weight:500}
+
+/* ACTIONS */
+.actions-list{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.action-item{display:flex;gap:12px;padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px;align-items:flex-start}
+.action-item:last-child{border-bottom:none}
+.action-num{font-size:11px;color:var(--text3);min-width:18px;margin-top:2px;font-weight:600}
+
+/* EXPORT */
+.export-section{margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--border)}
+.btn-export{width:100%;padding:10px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:var(--bg2);font-size:13px;font-weight:500;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:var(--font);transition:all 0.15s;margin-bottom:6px}
+.btn-export:hover{background:var(--bg3);border-color:var(--accent-border)}
+.export-hint{font-size:11px;color:var(--text3);text-align:center;line-height:1.5}
+.btn-restart{margin-top:10px;width:100%;padding:8px;border-radius:var(--radius-sm);border:none;background:transparent;font-size:12px;color:var(--text3);cursor:pointer;font-family:var(--font);transition:color 0.15s}
+.btn-restart:hover{color:var(--text2)}
+
+/* DEMO LABEL */
+.demo-banner{background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:var(--radius-sm);padding:8px 14px;font-size:12px;color:var(--accent);margin-bottom:1.5rem;display:flex;align-items:center;gap:8px}
+
+/* STEP VISIBILITY */
+.step{display:none}
+.step.active{display:block}
+
+/* GRADE COLORS */
+.grade-good{color:var(--green)}
+.grade-ok{color:var(--yellow)}
+.grade-poor{color:var(--red)}
+.grade-critical{color:var(--red)}
+.grade-unknown{color:var(--text3)}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="header">
+    <div class="badge"><i class="ti ti-brain"></i> AI-оценщик для фаундеров</div>
+    <h1>Проверь идею до запуска</h1>
+    <p>9 вопросов → структурированный отчёт с вердиктом Launch / Rework / Reject</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('quiz')">Оценить идею</button>
+    <button class="tab" onclick="switchTab('demo')">Пример отчёта</button>
+  </div>
+
+  <!-- ===== QUIZ TAB ===== -->
+  <div class="tab-content active" id="tab-quiz">
+    <div id="quiz-inner">
+      <div class="progress-wrap">
+        <div class="progress-meta">
+          <span id="step-counter">Шаг 1 из 9</span>
+          <span id="step-pct">11%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="prog" style="width:11%"></div></div>
+      </div>
+
+      <!-- S1 -->
+      <div class="step active" id="s1">
+        <div class="step-label">Шаг 1 из 9</div>
+        <div class="step-title">Тип бизнес-модели</div>
+        <div class="step-sub">Выберите основной формат вашей идеи</div>
+        <div class="opt-grid" id="q1">
+          <button class="opt" data-val="marketplace"><i class="ti ti-arrows-exchange opt-icon"></i>Маркетплейс</button>
+          <button class="opt" data-val="saas"><i class="ti ti-cloud opt-icon"></i>SaaS / подписка</button>
+          <button class="opt" data-val="unlimited_sub"><i class="ti ti-infinity opt-icon"></i>Безлим. подписка</button>
+          <button class="opt" data-val="transaction"><i class="ti ti-currency-dollar opt-icon"></i>Транзакционная</button>
+          <button class="opt" data-val="content"><i class="ti ti-news opt-icon"></i>Медиа / контент</button>
+          <button class="opt" data-val="hardware"><i class="ti ti-device-laptop opt-icon"></i>Железо / товар</button>
+        </div>
+        <div class="nav"><div></div><button class="btn-next" id="n1" disabled onclick="next(1)">Далее <i class="ti ti-arrow-right"></i></button></div>
+      </div>
+
+      <!-- S2 -->
+      <div class="step" id="s2">
+        <div class="step-label">Шаг 2 из 9</div>
+        <div class="step-title">Ниша</div>
+        <div class="step-sub">Выберите все подходящие категории</div>
+        <div class="opt-grid" id="q2">
+          <button class="opt" data-val="fintech"><i class="ti ti-building-bank opt-icon"></i>Финтех</button>
+          <button class="opt" data-val="medtech"><i class="ti ti-heart-rate-monitor opt-icon"></i>Медтех</button>
+          <button class="opt" data-val="food"><i class="ti ti-tools-kitchen opt-icon"></i>Еда / доставка</button>
+          <button class="opt" data-val="edtech"><i class="ti ti-school opt-icon"></i>Образование</button>
+          <button class="opt" data-val="b2b"><i class="ti ti-briefcase opt-icon"></i>B2B</button>
+          <button class="opt" data-val="consumer"><i class="ti ti-users opt-icon"></i>Потребит.</button>
+          <button class="opt" data-val="crypto"><i class="ti ti-currency-bitcoin opt-icon"></i>Крипто / Web3</button>
+          <button class="opt" data-val="ai"><i class="ti ti-robot opt-icon"></i>AI / авто</button>
+        </div>
+        <div class="nav"><button class="btn-back" onclick="back(2)">← Назад</button><button class="btn-next" id="n2" disabled onclick="next(2)">Далее <i class="ti ti-arrow-right"></i></button></div>
+      </div>
+
+      <!-- S3 -->
+      <div class="step" id="s3">
+        <div class="step-label">Шаг 3 из 9</div>
+        <div class="step-title">Идея и контекст</div>
+        <div class="step-sub">Три коротких ответа дают намного точнее анализ, чем один абзац</div>
+        <div class="field-wrap"><div class="field-label-main">Что делает продукт?</div><textarea id="q3a" rows="2" placeholder="Например: AI-сервис, который за минуту генерирует договоры и счета для фрилансеров"></textarea></div>
+        <div class="field-wrap"><div class="field-label-main">Какую боль решает?</div><textarea id="q3b" rows="2" placeholder="Например: фрилансеры тратят 3–5 часов в неделю на административные задачи"></textarea></div>
+        <div class="field-wrap"><div class="field-label-main">Почему именно сейчас?</div><textarea id="q3c" rows="2" placeholder="Например: AI-модели стали точными и дешёвыми для юридических текстов"></textarea></div>
+        <div class="row2">
+          <div class="field-wrap"><div class="field-label-main">Целевая аудитория</div><input type="text" id="q3d" placeholder="Кто ваш клиент?"></div>
+          <div class="field-wrap"><div class="field-label-main">Ключевой конкурент</div><input type="text" id="q3e" placeholder="Главная альтернатива?"></div>
+        </div>
+        <div class="nav"><button class="btn-back" onclick="back(3)">← Назад</button><button class="btn-next" id="n3" onclick="next(3)">Далее <i class="ti ti-arrow-right"></i></button></div>
+      </div>
+
+      <!-- S4 -->
+      <div class="step" id="s4">
+        <div class="step-label">Шаг 4 из 9</div>
+        <div class="step-title">Монетизация</div>
+        <div class="step-sub">Как продукт будет зарабатывать?</div>
+        <div class="opt-grid" id="q4">
+          <button class="opt" data-val="freemium"><i class="ti ti-gift opt-icon"></i>Freemium</button>
+          <button class="opt" data-val="sub_monthly"><i class="ti ti-calendar-repeat opt-icon"></i>Месячная подписка</button>
+          <button class="opt" data-val="sub_annual"><i class="ti ti-calendar opt-icon"></i>Годовая подписка</button>
+          <button class="opt" data-val="commission"><i class="ti ti-percentage opt-icon"></i>Комиссия</button>
+          <button class="opt" data-val="b2b_license"><i class="ti ti-license opt-icon"></i>B2B-лицензия</button>
+          <button class="opt" data-val="usage_based"><i class="ti ti-meter opt-icon"></i>По использованию</button>
+        </div>
+        <div class="nav"><button class="btn-back" onclick="back(4)">← Назад</button><button class="btn-next" id="n4" disabled onclick="next(4)">Далее <i class="ti ti-arrow-right"></i></button></div>
+      </div>
+
+      <!-- S5 -->
+      <div class="step" id="s5">
+        <div class="step-label">Шаг 5 из 9</div>
+        <div class="step-title">Каналы привлечения</div>
+        <div class="step-sub">Через что планируете получать пользователей? (можно несколько)</div>
+        <div class="opt-grid" id="q5">
+          <button class="opt" data-val="seo"><i class="ti ti-search opt-icon"></i>SEO / контент</button>
+          <button class="opt" data-val="paid_ads"><i class="ti ti-speakerphone opt-icon"></i>Платная реклама</button>
+          <button class="opt" data-val="social"><i class="ti ti-brand-instagram opt-icon"></i>Соцсети</button>
+          <button class="opt" data-val="viral"><i class="ti ti-share opt-icon"></i>Вирусный рост</button>
+          <button class="opt" data-val="partnerships"><i class="ti ti-handshake opt-icon"></i>Партнёрства</button>
+          <button class="opt" data-val="cold_outreach"><i class="ti ti-mail opt-icon"></i>Холодные продажи</button>
+          <button class="opt" data-val="community"><i class="ti ti-messages opt-icon"></i>Комьюнити</button>
+          <button class="opt" data-val="influencer"><i class="ti ti-star opt-icon"></i>Инфлюенсеры</button>
+        </div>
+        <div class="nav"><button class="btn-back" onclick="back(5)">← Назад</button><button class="btn-next" id="n5" disabled onclick="next(5)">Далее <i class="ti ti-arrow-right"></i></button></div>
+      </div>
+
+      <!-- S6 -->
+      <div class="step" id="s6">
+        <div class="step-label">Шаг 6 из 9</div>
+        <div class="step-title">Юнит-экономика</div>
+        <div class="step-sub">Не знаете точное число — нажмите «Не знаю». Мы применим типовые значения и явно пометим их в отчёте.</div>
+        <div class="field-wrap">
+          <div class="field-label">Средний чек <span class="field-hint">за период, любая валюта</span></div>
+          <div class="num-row"><input type="number" id="q6a" min="0" step="any" placeholder="990"><button class="btn-unknown" data-t="q6a" data-n="n6a" onclick="toggleUnknown(this)">Не знаю</button></div>
+          <div class="field-note" id="n6a">Без чека невозможно посчитать payback-период. В отчёте появится предупреждение.</div>
+        </div>
+        <div class="field-wrap">
+          <div class="field-label">CAC <span class="field-hint">стоимость привлечения одного клиента</span></div>
+          <div class="num-row"><input type="number" id="q6b" min="0" step="any" placeholder="800"><button class="btn-unknown" data-t="q6b" data-n="n6b" onclick="toggleUnknown(this)">Не знаю</button></div>
+          <div class="field-note" id="n6b">Без CAC невозможен расчёт LTV/CAC ratio — ключевого индикатора экономики.</div>
+        </div>
+        <div class="field-wrap">
+          <div class="field-label">LTV <span class="field-hint">ценность клиента за всё время</span></div>
+          <div class="num-row"><input type="number" id="q6c" min="0" step="any" placeholder="6000"><button class="btn-unknown" data-t="q6c" data-n="n6c" onclick="toggleUnknown(this)">Не знаю</button></div>
+          <div class="field-note" id="n6c">Если не знаете — рассчитаем по формуле LTV = чек ÷ churn. Будет помечено как расчётное.</div>
+        </div>
+        <div class="field-wrap">
+          <div class="field-label">Ежемесячный отток <span class="field-hint">% клиентов в месяц</span></div>
+          <div class="num-row"><input type="number" id="q6d" min="0" max="100" step="0.5" placeholder="5"><button class="btn-unknown" data-t="q6d" data-n="n6d" onclick="toggleUnknown(this)">Не знаю</button></div>
+          <div class="field-note" id="n6d">Применим типовой churn для вашей модели и явно пометим как предположение.</div>
+        </div>
+        <div class="field-wrap">
+          <div class="field-label">Стартовый бюджет <span class="field-hint">на запуск, любая валюта</span></div>
+          <div class="num-row"><input type="number" id="q6e" min="0" step="any" placeholder="1500000"><button class="btn-unknown" data-t="q6e" data-n="n6e" onclick="toggleUnknown(this)">Не знаю</button></div>
+          <div class="field-note" id="n6e">Без бюджета runway рассчитать невозможно — этот блок в отчёте будет пропущен.</div>
+        </div>
+        <div class="field-wrap">
+          <div class="field-label-main">Целевая география</div>
+          <input type="text" id="q6f" placeholder="Например: Россия + СНГ">
+        </div>
+        <div class="nav"><button class="btn-back" onclick="back(6)">← Назад</button><button class="btn-next" id="n6" onclick="next(6)">Далее <i class="ti ti-arrow-right"></i></button></div>
+      </div>
+
+      <!-- S7 -->
+      <div class="step" id="s7">
+        <div class="step-label">Шаг 7 из 9</div>
+        <div class="step-title">Конкуренты</div>
+        <div class="step-sub">Помогите оценить конкурентную позицию</div>
+        <div class="field-label-main" style="margin-bottom:8px">Есть ли гиганты (Google, Сбер, Яндекс) в нише?</div>
+        <div class="opt-grid" id="q7a" style="margin-bottom:1.25rem">
+          <button class="opt" data-val="yes">Да, есть</button>
+          <button class="opt" data-val="indirect">Частично, косвенно</button>
+          <button class="opt" data-val="no">Нет такого масштаба</button>
+        </div>
+        <div class="field-label-main" style="margin-bottom:8px">Ваше главное конкурентное преимущество</div>
+        <div class="opt-grid" id="q7b">
+          <button class="opt" data-val="price">Цена</button>
+          <button class="opt" data-val="ux">Удобство / UX</button>
+          <button class="opt" data-val="niche">Специализация</button>
+          <button class="opt" data-val="tech">Технология / AI</button>
+          <button class="opt" data-val="network">Сетевой эффект</button>
+          <button class="opt" data-val="brand">Бренд / доверие</button>
+        </div>
+        <div class="nav"><button class="btn-back" onclick="back(7)">← Назад</button><button class="btn-next" id="n7" disabled onclick="next(7)">Далее <i class="ti ti-arrow-right"></i></button></div>
+      </div>
+
+      <!-- S8 -->
+      <div class="step" id="s8">
+        <div class="step-label">Шаг 8 из 10</div>
+        <div class="step-title">Опыт команды</div>
+        <div class="step-sub">Влияет на оценку критерия «исполнение»</div>
+        <div class="opt-grid" id="q8">
+          <button class="opt" data-val="domain">Работал(а) именно в этой нише</button>
+          <button class="opt" data-val="adjacent">Смежный опыт в другой сфере</button>
+          <button class="opt" data-val="startup">Опыт в стартапах, но не в этой нише</button>
+          <button class="opt" data-val="none">Совсем новичок в этом</button>
+        </div>
+        <div class="nav"><button class="btn-back" onclick="back(8)">← Назад</button><button class="btn-next" id="n8" disabled onclick="next(8)">Далее <i class="ti ti-arrow-right"></i></button></div>
+      </div>
+
+      <!-- S9 — Размер команды -->
+      <div class="step" id="s9">
+        <div class="step-label">Шаг 9 из 10</div>
+        <div class="step-title">Размер команды</div>
+        <div class="step-sub">Влияет на реалистичность прогноза и оценку исполнения — один человек и команда из пяти решают разные задачи</div>
+        <div class="opt-grid" id="q9team">
+          <button class="opt" data-val="solo"><i class="ti ti-user opt-icon"></i>Только я один</button>
+          <button class="opt" data-val="duo"><i class="ti ti-users opt-icon"></i>Я + партнёр (2 человека)</button>
+          <button class="opt" data-val="small"><i class="ti ti-users-group opt-icon"></i>Небольшая команда (3–5)</button>
+          <button class="opt" data-val="medium"><i class="ti ti-building opt-icon"></i>Команда 6–15 человек</button>
+        </div>
+        <div class="nav"><button class="btn-back" onclick="back(9)">← Назад</button><button class="btn-next" id="n9team" disabled onclick="next(9)">Далее <i class="ti ti-arrow-right"></i></button></div>
+      </div>
+
+      <!-- S10 -->
+      <div class="step" id="s10">
+        <div class="step-label">Шаг 10 из 10</div>
+        <div class="step-title">Стадия проекта</div>
+        <div class="step-sub">Где вы сейчас?</div>
+        <div class="opt-grid" id="q9">
+          <button class="opt" data-val="idea"><i class="ti ti-bulb opt-icon"></i>Идея в голове</button>
+          <button class="opt" data-val="validation"><i class="ti ti-checks opt-icon"></i>Валидирую рынок</button>
+          <button class="opt" data-val="mvp"><i class="ti ti-hammer opt-icon"></i>Строю MVP</button>
+          <button class="opt" data-val="launched"><i class="ti ti-rocket opt-icon"></i>Уже запущен</button>
+        </div>
+        <div class="nav"><button class="btn-back" onclick="back(10)">← Назад</button><button class="btn-next" id="n9" disabled onclick="startAnalyze()">Анализировать <i class="ti ti-brain"></i></button></div>
+      </div>
+
+      <!-- ANALYZING -->
+      <div class="step" id="s11">
+        <div class="analyzing">
+          <div class="pulse-wrap">
+            <div class="pulse-ring"></div>
+            <div class="pulse-ring"></div>
+            <div class="pulse-inner"><i class="ti ti-brain"></i></div>
+          </div>
+          <div style="font-size:16px;font-weight:600;margin-bottom:6px">Анализируем вашу идею...</div>
+          <div style="font-size:13px;color:var(--text2);margin-bottom:1.5rem">JS считает числа детерминированно, Claude интерпретирует контекст</div>
+          <ul class="analyze-list" id="alist">
+            <li class="analyze-item" id="ai1"><i class="ti ti-clock"></i> Расчёт LTV/CAC, payback, runway</li>
+            <li class="analyze-item" id="ai2"><i class="ti ti-clock"></i> Автодетект структурных рисков</li>
+            <li class="analyze-item" id="ai3"><i class="ti ti-clock"></i> Аудит каналов и потолков роста</li>
+            <li class="analyze-item" id="ai4"><i class="ti ti-clock"></i> Регуляторика и конкуренция</li>
+            <li class="analyze-item" id="ai5"><i class="ti ti-clock"></i> Формирование вердикта</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- RESULT -->
+      <div class="step" id="s12">
+        <div id="result-content"></div>
+        <div class="export-section">
+          <button class="btn-export" onclick="doExport()"><i class="ti ti-download"></i> Скачать отчёт (HTML-файл)</button>
+          <div class="export-hint">Откройте в браузере → Ctrl+P → «Сохранить как PDF». Кириллица сохраняется без проблем.</div>
+          <button class="btn-restart" onclick="restartQuiz()">↺ Оценить другую идею</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== DEMO TAB ===== -->
+  <div class="tab-content" id="tab-demo">
+    <div class="demo-banner"><i class="ti ti-eye"></i> Пример реального отчёта — идея: SaaS для автоматизации документов малого бизнеса в СНГ</div>
+    <div id="demo-content"></div>
+  </div>
+
+</div>
+
+<script>
+// ===== STATE =====
+const S={q1:null,q2:[],q3a:'',q3b:'',q3c:'',q3d:'',q3e:'',q4:null,q5:[],q6a:'',q6b:'',q6c:'',q6d:'',q6e:'',q6f:'',q7a:null,q7b:null,q8:null,q9team:null,q9:null};
+let lastR=null,lastC=null;
+
+// ===== TABS =====
+function switchTab(t){
+  document.querySelectorAll('.tab').forEach(function(el,i){el.classList.toggle('active',['quiz','demo'][i]===t)});
+  document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active')});
+  document.getElementById('tab-'+t).classList.add('active');
+}
+
+// ===== STEP SETUP =====
+const PROG={1:10,2:20,3:30,4:40,5:50,6:60,7:70,8:80,9:90,10:100};
+
+function single(gid,key,nb){
+  document.getElementById(gid).querySelectorAll('.opt').forEach(function(b){
+    b.onclick=function(){
+      document.getElementById(gid).querySelectorAll('.opt').forEach(function(x){x.classList.remove('sel')});
+      b.classList.add('sel');S[key]=b.dataset.val;
+      if(nb)document.getElementById(nb).disabled=false;
+    };
+  });
+}
+function multi(gid,key,nb){
+  document.getElementById(gid).querySelectorAll('.opt').forEach(function(b){
+    b.onclick=function(){
+      b.classList.toggle('sel');
+      S[key]=Array.from(document.getElementById(gid).querySelectorAll('.opt.sel')).map(function(x){return x.dataset.val});
+      if(nb)document.getElementById(nb).disabled=S[key].length===0;
+    };
+  });
+}
+single('q1','q1','n1');
+multi('q2','q2','n2');
+single('q4','q4','n4');
+multi('q5','q5','n5');
+document.getElementById('q7a').querySelectorAll('.opt').forEach(function(b){
+  b.onclick=function(){
+    document.getElementById('q7a').querySelectorAll('.opt').forEach(function(x){x.classList.remove('sel')});
+    b.classList.add('sel');S.q7a=b.dataset.val;
+    if(S.q7a&&S.q7b)document.getElementById('n7').disabled=false;
+  };
+});
+document.getElementById('q7b').querySelectorAll('.opt').forEach(function(b){
+  b.onclick=function(){
+    document.getElementById('q7b').querySelectorAll('.opt').forEach(function(x){x.classList.remove('sel')});
+    b.classList.add('sel');S.q7b=b.dataset.val;
+    if(S.q7a&&S.q7b)document.getElementById('n7').disabled=false;
+  };
+});
+single('q8','q8','n8');
+single('q9team','q9team','n9team');
+single('q9','q9','n9');
+
+['q3a','q3b','q3c','q3d','q3e','q6f'].forEach(function(id){
+  document.getElementById(id).oninput=function(){S[id]=this.value};
+});
+['q6a','q6b','q6c','q6d','q6e'].forEach(function(id){
+  document.getElementById(id).oninput=function(){S[id]=this.value};
+});
+
+// ===== UNKNOWN TOGGLE =====
+function toggleUnknown(btn){
+  var input=document.getElementById(btn.dataset.t);
+  var note=document.getElementById(btn.dataset.n);
+  var on=btn.classList.toggle('active');
+  input.disabled=on;
+  if(on){input.value='';S[btn.dataset.t]='';}
+  note.classList.toggle('show',on);
+  btn.textContent=on?'Указать':'Не знаю';
+}
+
+// ===== PLACEHOLDERS BY MODEL =====
+var PH={marketplace:{a:500,b:300,c:1500,d:15,e:1000000},saas:{a:990,b:800,c:6000,d:5,e:1500000},unlimited_sub:{a:1990,b:1200,c:8000,d:8,e:2000000},transaction:{a:200,b:150,c:600,d:30,e:1000000},content:{a:300,b:400,c:1200,d:10,e:800000},hardware:{a:5000,b:1500,c:8000,d:0,e:3000000}};
+function setPlaceholders(){
+  var d=PH[S.q1]||PH.saas;
+  ['a','b','c','d','e'].forEach(function(k){document.getElementById('q6'+k).placeholder=d[k]});
+}
+
+// ===== NAVIGATION =====
+function showStep(n){
+  document.querySelectorAll('.step').forEach(function(s){s.classList.remove('active')});
+  document.getElementById('s'+n).classList.add('active');
+  var p=PROG[n];
+  if(p){
+    document.getElementById('prog').style.width=p+'%';
+    document.getElementById('step-counter').textContent='Шаг '+n+' из 10';
+    document.getElementById('step-pct').textContent=p+'%';
+  }
+}
+function next(n){if(n===5)setPlaceholders();showStep(n+1)}
+function back(n){showStep(n-1)}
+
+// ===== COMPUTE =====
+function num(v){var n=parseFloat(v);return isNaN(n)?0:n}
+
+function compute(s){
+  var price=num(s.q6a),cac=num(s.q6b),ltvIn=num(s.q6c),churnIn=num(s.q6d),budget=num(s.q6e);
+  var churn=churnIn,churnAssumed=false;
+  if(!churnIn){
+    var map={transaction:30,saas:5,unlimited_sub:5,marketplace:15,content:10};
+    if(map[s.q1]){churn=map[s.q1];churnAssumed=true;}
+  }
+  var ltv=ltvIn,ltvAssumed=false;
+  if(!ltvIn&&price>0&&churn>0){ltv=Math.round(price/(churn/100));ltvAssumed=true;}
+  var ratio=(cac>0&&ltv>0)?Math.round(ltv/cac*100)/100:null;
+  var grade=ratio===null?'unknown':ratio<1?'critical':ratio<3?'poor':ratio<5?'ok':'good';
+  var payback=(price>0&&cac>0)?Math.round(cac/price*10)/10:null;
+  var burn=budget>0?Math.round(budget*0.15):null;
+  var runway=burn?Math.round(budget/burn):null;
+  var flags=[];
+  if(s.q1==='marketplace')flags.push('INTERMEDIARY_DILEMMA');
+  if(s.q1==='unlimited_sub')flags.push('MARGIN_SQUEEZE');
+  if(s.q1==='transaction')flags.push('HIGH_CHURN');
+  if(s.q2&&['fintech','medtech','food'].some(function(n){return s.q2.indexOf(n)>=0}))flags.push('REGULATORY_BLOCK');
+  return{price,cac,ltv,ltvAssumed,budget,churn,churnAssumed,ratio,grade,payback,runway,burn,flags};
+}
+
+// ===== LABELS =====
+var GRADE_LABEL={critical:'Критично',poor:'Слабо',ok:'Нормально',good:'Хорошо',unknown:'Нет данных'};
+var GRADE_CSS={critical:'grade-poor',poor:'grade-poor',ok:'grade-ok',good:'grade-good',unknown:'grade-unknown'};
+var SCORE_NAMES={market:'Рынок',model:'Модель',competition:'Конкуренция',economics:'Экономика',execution:'Исполнение',regulation:'Регуляторика'};
+var CHAN_COLOR={Высокий:'var(--green)',Средний:'var(--yellow)',Низкий:'var(--red)'};
+var STRUCT_LABEL={INTERMEDIARY_DILEMMA:'Маркетплейс: риск ухода сторон в прямые сделки',MARGIN_SQUEEZE:'Безлимитная подписка: риск отрицательной маржи',HIGH_CHURN:'Транзакционная: типичный churn 25–35% в месяц',REGULATORY_BLOCK:'Регулируемая ниша: вероятны лицензии и сертификации'};
+
+// ===== RENDER REPORT =====
+function renderReport(r,c,st){
+  var vc=r.verdict==='Launch'?'v-launch':r.verdict==='Rework'?'v-rework':'v-reject';
+  var vTitle=r.verdict==='Launch'?'Запускать':r.verdict==='Rework'?'Доработать':'Отклонить';
+  var vIcon=r.verdict==='Launch'?'ti-rocket':r.verdict==='Rework'?'ti-refresh':'ti-x';
+
+  // METRICS
+  var teamLabel={solo:'Один основатель',duo:'2 человека',small:'3–5 человек',medium:'6–15 человек'};
+  var teamNote={solo:'Всё на одном человеке — учтено в оценке исполнения и прогнозе',duo:'Пара основателей — хороший баланс нагрузки',small:'Небольшая команда — достаточно для MVP',medium:'Команда среднего размера — важно следить за burn rate'};
+  var teamVal=(st&&st.q9team)||r.teamSize;
+  var metricsRows='';
+  var ratio=c.ratio!==null?c.ratio+'x <span class="'+GRADE_CSS[c.grade]+'">· '+GRADE_LABEL[c.grade]+'</span>':'<span class="grade-unknown">— нет данных</span>';
+  metricsRows+='<div class="metrics-row"><span class="metrics-label">LTV / CAC</span><span class="metrics-val">'+ratio+'</span></div>';
+  metricsRows+='<div class="metrics-row"><span class="metrics-label">Payback период</span><span class="metrics-val">'+(c.payback!==null?c.payback+' мес.':'—')+'</span></div>';
+  metricsRows+='<div class="metrics-row"><span class="metrics-label">Churn '+(c.churnAssumed?'(типовой *)':''  )+'</span><span class="metrics-val">'+c.churn+'%</span></div>';
+  metricsRows+='<div class="metrics-row"><span class="metrics-label">LTV '+(c.ltvAssumed?'(расчётный *)':''  )+'</span><span class="metrics-val">'+(c.ltv||'—')+'</span></div>';
+  metricsRows+='<div class="metrics-row"><span class="metrics-label">Runway</span><span class="metrics-val">'+(c.runway?c.runway+' мес.':'нет данных о бюджете')+'</span></div>';
+  if(teamVal)metricsRows+='<div class="metrics-row"><span class="metrics-label">Команда</span><span class="metrics-val">'+(teamLabel[teamVal]||teamVal)+'</span></div>';
+  var metricsNote='';
+  if(c.churnAssumed||c.ltvAssumed)metricsNote+='* типовые/расчётные значения, не введены пользователем. ';
+  if(c.runway)metricsNote+='Runway при burn rate ≈15% бюджета в месяц — грубая оценка.';
+
+  // SCORES
+  var scHTML='';
+  Object.keys(r.scores).forEach(function(k,idx){
+    var entry=r.scores[k];
+    var v=(typeof entry==='object')?entry.value:entry;
+    var why=(typeof entry==='object')?entry.why:'';
+    var col=v>=7?'var(--green)':v>=5?'var(--yellow)':'var(--red)';
+    scHTML+='<div class="score-card" id="sc-'+idx+'" onclick="toggleScore('+idx+')">'+
+      '<div class="score-name">'+(SCORE_NAMES[k]||k)+(why?' <i class="ti ti-chevron-down"></i>':'')+'</div>'+
+      '<div class="score-num" style="color:'+col+'">'+v+'<span style="font-size:12px;color:var(--text3);font-weight:400">/10</span></div>'+
+      '<div class="score-bar"><div class="score-fill" style="width:'+(v*10)+'%;background:'+col+'"></div></div>'+
+      (why?'<div class="score-detail">'+why+'</div>':'')+
+    '</div>';
+  });
+
+  // RISKS
+  var riskHTML=r.risks.map(function(ri){
+    var icon=ri.level==='high'?'ti-alert-triangle':ri.level==='med'?'ti-alert-circle':'ti-info-circle';
+    return '<div class="risk-item '+ri.level+'"><i class="ti '+icon+' risk-icon"></i><div><div class="risk-title">'+ri.title+'</div><div class="risk-desc">'+ri.desc+'</div></div></div>';
+  }).join('');
+
+  // CHANNELS
+  var chanHTML=r.channels.map(function(ch){
+    return '<div class="channel-item"><span class="channel-name">'+ch.name+'</span><div class="channel-right"><div class="channel-pot" style="color:'+(CHAN_COLOR[ch.potential]||'var(--text2)')+'">'+ch.potential+'</div><div class="channel-note">'+(ch.note||'')+'</div></div></div>';
+  }).join('');
+
+  // FORECAST
+  var fc=r.forecast;
+  var fcHTML='<div class="fc-card fc-bear"><div class="fc-scenario">Медвежий</div><div class="fc-num">'+fc.bear_arr+'</div><div class="fc-note">'+fc.bear+'</div></div>'+
+    '<div class="fc-card fc-base"><div class="fc-scenario">Базовый</div><div class="fc-num">'+fc.base_arr+'</div><div class="fc-note">'+fc.base+'</div></div>'+
+    '<div class="fc-card fc-bull"><div class="fc-scenario">Бычий</div><div class="fc-num">'+fc.bull_arr+'</div><div class="fc-note">'+fc.bull+'</div></div>';
+
+  // STRUCT
+  var stTags=c.flags.length?c.flags.map(function(f){return '<span class="struct-tag">'+STRUCT_LABEL[f]+'</span>'}).join(''):'<span style="font-size:13px;color:var(--text3)">Не обнаружено</span>';
+  var stComments=(r.structural_risk_comments||[]).map(function(s){return '<div class="struct-comment">'+s+'</div>'}).join('');
+
+  // ACTIONS
+  var actHTML=(r.actions||[]).map(function(a,i){
+    return '<div class="action-item"><span class="action-num">'+(i+1)+'.</span><span>'+a+'</span></div>';
+  }).join('');
+
+  // MONETIZATION AUDIT
+  var monAudit='';
+  if(r.monetization_audit){
+    var ma=r.monetization_audit;
+    var maColor=ma.verdict==='optimal'?'var(--green)':'var(--yellow)';
+    var maBg=ma.verdict==='optimal'?'var(--green-bg)':'var(--yellow-bg)';
+    var maBorder=ma.verdict==='optimal'?'var(--green-border)':'var(--yellow-border)';
+    var maIcon=ma.verdict==='optimal'?'✅':'⚠️';
+    monAudit='<div class="section-title">Аудит монетизации</div>'+
+      '<div style="background:'+maBg+';border:1px solid '+maBorder+';border-radius:var(--radius-sm);padding:12px 14px">'+
+        '<div style="font-size:12px;color:var(--text2);margin-bottom:6px">Выбранная модель: <b style="color:var(--text)">'+ma.chosen+'</b></div>'+
+        '<div style="font-size:13px;font-weight:500;color:'+maColor+';margin-bottom:4px">'+maIcon+' '+(ma.verdict==='optimal'?'Модель оптимальна для вашего случая':'Рекомендуем изменить модель')+'</div>'+
+        (ma.recommended?'<div style="font-size:12px;color:var(--text2);margin-bottom:4px">Рекомендуем: <b style="color:var(--text)">'+ma.recommended+'</b></div>':'')+
+        '<div style="font-size:12px;color:var(--text2);line-height:1.5">'+ma.reason+'</div>'+
+      '</div>';
+  }
+
+  return '<div class="verdict-card '+vc+'">'+
+    '<div class="verdict-eyebrow">Вердикт · '+r.score_total+'/100</div>'+
+    '<div class="verdict-heading"><i class="ti '+vIcon+'"></i> '+vTitle+'</div>'+
+    '<div class="verdict-text">'+r.summary+'</div>'+
+  '</div>'+
+  '<div class="section-title">Юнит-экономика — расчётные показатели</div>'+
+  '<div class="metrics-block"><div>'+metricsRows+'</div>'+(metricsNote?'<div class="metrics-note">'+metricsNote+'</div>':'')+'</div>'+
+  '<div class="section-title">Скоркард</div>'+
+  '<div class="score-grid">'+scHTML+'</div>'+
+  monAudit+
+  '<div class="section-title">Риски</div>'+
+  '<div class="risk-list">'+riskHTML+'</div>'+
+  '<div class="section-title">Аудит каналов</div>'+
+  chanHTML+
+  '<div class="section-title">Прогноз выручки — 3 сценария (12 мес.)</div>'+
+  '<div class="forecast-grid">'+fcHTML+'</div>'+
+  '<div class="section-title">Структурные риски (автодетект)</div>'+
+  '<div class="struct-wrap">'+stTags+'</div>'+stComments+
+  '<div class="info-pair" style="margin-top:1rem">'+
+    '<div class="info-card"><div class="info-card-label">Гео-масштабируемость</div><div class="info-card-val">'+r.geo_scalability+'</div></div>'+
+    '<div class="info-card"><div class="info-card-label">Сезонность</div><div class="info-card-val">'+r.seasonality+'</div></div>'+
+  '</div>'+
+  '<div class="section-title">Приоритетные действия</div>'+
+  '<div class="actions-list">'+actHTML+'</div>';
+}
+
+function toggleScore(idx){
+  document.getElementById('sc-'+idx).classList.toggle('expanded');
+}
+
+// ===== ANALYZE =====
+function startAnalyze(){
+  showStep(11);
+  var items=['ai1','ai2','ai3','ai4','ai5'];
+  var i=0;
+  function tick(){
+    if(i>0){var prev=document.getElementById(items[i-1]);prev.classList.remove('active-item');prev.classList.add('done');prev.querySelector('.ti').className='ti ti-check';}
+    if(i<items.length){document.getElementById(items[i]).classList.add('active-item');i++;setTimeout(tick,750);}
+    else{setTimeout(runAI,300);}
+  }
+  tick();
+}
+
+// URL прокси-сервера на Railway — заменить на реальный домен после деплоя
+var PROXY_URL='https://your-bot.railway.app/analyze';
+
+// ===== SANITY CHECK =====
+function sanityCheck(s,c){
+  var warnings=[];
+  var idea=(s.q3a+' '+s.q3b+' '+s.q3c).toLowerCase();
+  // Космос / спутники / ракеты при бюджете меньше $1M
+  var spaceKeywords=['спутник','ракета','starlink','космос','orbit','satellite','rocket'];
+  if(spaceKeywords.some(function(k){return idea.indexOf(k)>=0})&&c.budget<1000000){
+    warnings.push({type:'CRITICAL',title:'Критическое несоответствие бюджета',desc:'Запуск спутников / космическая инфраструктура требует минимум $50–100 млн. Указанный бюджет делает идею нереализуемой в текущем виде.'});
+  }
+  // Физическое производство при бюджете меньше $50K
+  if(s.q1==='hardware'&&c.budget>0&&c.budget<50000){
+    warnings.push({type:'CRITICAL',title:'Бюджет несовместим с железом',desc:'Производство физических устройств требует минимум $50K на MVP. Рассмотрите software-only версию или найдите партнёра-производителя.'});
+  }
+  // Бюджет 0 при любой модели
+  if(s.q6e&&c.budget===0){
+    warnings.push({type:'WARNING',title:'Бюджет указан как 0',desc:'Любой запуск требует минимальных вложений. Уточните реальный доступный бюджет для точного расчёта runway.'});
+  }
+  return warnings;
+}
+
+function showSanityWarnings(warnings){
+  var html=warnings.map(function(w){
+    var col=w.type==='CRITICAL'?'var(--red)':'var(--yellow)';
+    var bg=w.type==='CRITICAL'?'var(--red-bg)':'var(--yellow-bg)';
+    var border=w.type==='CRITICAL'?'var(--red-border)':'var(--yellow-border)';
+    return '<div style="background:'+bg+';border:1px solid '+border+';border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:8px">'+
+      '<div style="font-size:13px;font-weight:600;color:'+col+';margin-bottom:4px">⚠️ '+w.title+'</div>'+
+      '<div style="font-size:12px;color:var(--text2);line-height:1.5">'+w.desc+'</div>'+
+    '</div>';
+  }).join('');
+  document.getElementById('result-content').innerHTML=
+    '<div style="margin-bottom:1.5rem">'+html+'</div>'+
+    '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;font-size:13px;color:var(--text2)">'+
+      'Анализ продолжен с учётом предупреждений выше. Вердикт отражает реальное положение дел.'+
+    '</div>';
+}
+
+async function runAI(){
+  var c=compute(S);
+  // Sanity check перед отправкой
+  var warnings=sanityCheck(S,c);
+  var prompt=buildPrompt(S,c);
+  try{
+    var resp=await fetch(PROXY_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({answers:S,computed:c,prompt:prompt})
+    });
+    if(!resp.ok)throw new Error('HTTP '+resp.status);
+    var result=await resp.json();
+    lastR=result;lastC=c;
+    var html='';
+    if(warnings.length>0)html=showSanityWarningsHTML(warnings);
+    document.getElementById('result-content').innerHTML=html+renderReport(result,c,S);
+    showStep(12);
+  }catch(e){
+    lastC=c;
+    showErrorScreen(e.message,warnings,c);
+  }
+}
+
+function showSanityWarningsHTML(warnings){
+  return warnings.map(function(w){
+    var col=w.type==='CRITICAL'?'var(--red)':'var(--yellow)';
+    var bg=w.type==='CRITICAL'?'var(--red-bg)':'var(--yellow-bg)';
+    var border=w.type==='CRITICAL'?'var(--red-border)':'var(--yellow-border)';
+    return '<div style="background:'+bg+';border:1px solid '+border+';border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:8px">'+
+      '<div style="font-size:13px;font-weight:600;color:'+col+';margin-bottom:4px">⚠️ '+w.title+'</div>'+
+      '<div style="font-size:12px;color:var(--text2);line-height:1.5">'+w.desc+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+function showErrorScreen(errMsg,warnings,c){
+  var html='';
+  if(warnings.length>0)html=showSanityWarningsHTML(warnings);
+  html+='<div class="verdict-card v-reject" style="margin-top:'+(warnings.length>0?'1rem':'0')+'">';
+  html+='<div class="verdict-eyebrow">Ошибка анализа</div>';
+  html+='<div class="verdict-heading" style="font-size:20px"><i class="ti ti-wifi-off"></i> Не удалось получить AI-анализ</div>';
+  html+='<div class="verdict-text">Сервер анализа временно недоступен. Пожалуйста, попробуйте через несколько минут.<br><br>';
+  if(errMsg)html+='<span style="font-size:11px;opacity:0.5">Техническая информация: '+errMsg+'</span>';
+  html+='</div></div>';
+  // Показываем только детерминированные данные которые JS уже посчитал
+  html+='<div class="section-title">Расчётные данные (посчитаны локально)</div>';
+  html+='<div class="metrics-block">';
+  var ratio=c.ratio!==null?c.ratio+'x · '+GRADE_LABEL[c.grade]:'— нет данных';
+  html+='<div class="metrics-row"><span class="metrics-label">LTV / CAC</span><span class="metrics-val">'+ratio+'</span></div>';
+  html+='<div class="metrics-row"><span class="metrics-label">Payback</span><span class="metrics-val">'+(c.payback!==null?c.payback+' мес.':'—')+'</span></div>';
+  html+='<div class="metrics-row"><span class="metrics-label">Churn'+(c.churnAssumed?' *':'')+'</span><span class="metrics-val">'+c.churn+'%</span></div>';
+  html+='<div class="metrics-row"><span class="metrics-label">Runway</span><span class="metrics-val">'+(c.runway?c.runway+' мес.':'нет данных о бюджете')+'</span></div>';
+  html+='</div>';
+  html+='<button class="btn-next" style="width:100%;justify-content:center;margin-top:1rem" onclick="startAnalyze()"><i class="ti ti-refresh"></i> Попробовать снова</button>';
+  html+='<button class="btn-restart" onclick="restartQuiz()">↺ Начать заново</button>';
+  document.getElementById('result-content').innerHTML=html;
+  showStep(12);
+}
+
+function buildPrompt(s,c){
+  var fl=c.flags.map(function(f){return '- '+STRUCT_LABEL[f]}).join('\n')||'не выявлено';
+  return 'Оцени бизнес-идею. Числа уже посчитаны — используй как факты, не придумывай свои.\n\n'+
+  'ИДЕЯ:\nМодель: '+s.q1+'\nНиша: '+(s.q2.join(', ')||'не указана')+
+  '\nЧто делает: '+(s.q3a||'не указано')+'\nБоль: '+(s.q3b||'не указано')+'\nПочему сейчас: '+(s.q3c||'не указано')+
+  '\nАудитория: '+(s.q3d||'не указана')+'\nКонкурент: '+(s.q3e||'не указан')+
+  '\nМонетизация: '+s.q4+'\nКаналы: '+(s.q5.join(', ')||'не указаны')+
+  '\nГео: '+(s.q6f||'не указана')+'\nГиганты: '+s.q7a+'\nУТП: '+s.q7b+
+  '\nОпыт команды: '+s.q8+
+  '\nРазмер команды: '+(s.q9team==='solo'?'Один основатель':s.q9team==='duo'?'2 человека':s.q9team==='small'?'3–5 человек':'6–15 человек')+
+  '\nСтадия: '+s.q9+
+  '\n\nМЕТРИКИ (готовые факты):\nLTV/CAC: '+(c.ratio!==null?c.ratio+'x':'нет данных')+' ('+GRADE_LABEL[c.grade]+')'+
+  '\nPayback: '+(c.payback!==null?c.payback+' мес.':'нет данных')+
+  '\nChurn: '+c.churn+'%'+(c.churnAssumed?' (типовой для модели)':'')+
+  '\nLTV: '+(c.ltv||'нет данных')+(c.ltvAssumed?' (расчётный: чек/churn)':'')+
+  '\nRunway: '+(c.runway?c.runway+' мес.':'нет данных о бюджете')+
+  '\n\nСТРУКТУРНЫЕ РИСКИ АВТОДЕТЕКТ:\n'+fl+
+  '\n\nАУДИТ МОНЕТИЗАЦИИ: Если выбранная модель монетизации ('+s.q4+') не оптимальна для этой идеи и аудитории — обязательно укажи это. Добавь в JSON поле monetization_audit: {"chosen":"'+s.q4+'","verdict":"optimal|suboptimal","recommended":"название лучшей модели или null","reason":"почему лучше или почему текущая хороша"}. Примеры когда менять: freemium+B2B высокий чек → прямые продажи; подписка+редкое использование → pay-per-use; комиссия+маленький рынок → подписка.'+
+  '\n\nВерни ТОЛЬКО JSON.';
+}
+
+// ===== EXPORT =====
+function doExport(){
+  if(!lastR||!lastC)return;
+  var r=lastR,c=lastC;
+  var vTitle=r.verdict==='Launch'?'Запускать':r.verdict==='Rework'?'Доработать':'Отклонить';
+  var vColor=r.verdict==='Launch'?'#00C98D':r.verdict==='Rework'?'#FFB020':'#FF4D6A';
+  var vBg=r.verdict==='Launch'?'#0a2a20':r.verdict==='Rework'?'#2a1f0a':'#2a0a12';
+  var ratioTxt=c.ratio!==null?c.ratio+'x — '+GRADE_LABEL[c.grade]:'— нет данных';
+  var scRows=Object.keys(r.scores).map(function(k){var e=r.scores[k];var v=(typeof e==='object')?e.value:e;var why=(typeof e==='object')?e.why:'';return '<tr><td>'+(SCORE_NAMES[k]||k)+(why?'<br><span style="font-size:11px;color:#5c5a72">'+why+'</span>':'')+'</td><td style="vertical-align:top"><b>'+v+'/10</b></td></tr>'}).join('');
+  var riskRows=r.risks.map(function(ri){var col=ri.level==='high'?'#FF4D6A':ri.level==='med'?'#FFB020':'#00C98D';return '<div style="border-left:3px solid '+col+';padding:8px 12px;margin-bottom:8px;background:#1a1a24;border-radius:4px"><b style="color:'+col+'">'+ri.title+'</b><br><span style="color:#888;font-size:13px">'+ri.desc+'</span></div>';}).join('');
+  var chanRows=r.channels.map(function(ch){return '<tr><td>'+ch.name+'</td><td>'+ch.potential+'</td><td style="color:#888;font-size:12px">'+(ch.note||'')+'</td></tr>'}).join('');
+  var actRows=r.actions.map(function(a,i){return '<li style="margin-bottom:6px">'+a+'</li>'}).join('');
+  var html='<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><title>Отчёт — '+vTitle+'</title><style>body{background:#0f0f13;color:#f0eef8;font-family:Arial,sans-serif;max-width:720px;margin:40px auto;padding:0 20px;line-height:1.6}h2{font-size:13px;text-transform:uppercase;letter-spacing:0.07em;color:#5c5a72;border-top:1px solid #2e2e3e;padding-top:18px;margin-top:28px;margin-bottom:12px}table{width:100%;border-collapse:collapse;font-size:14px}td{padding:6px 0;border-bottom:1px solid #2e2e3e}.verdict{background:'+vBg+';border:1px solid '+vColor+'40;border-radius:10px;padding:20px;margin-bottom:10px}.fc{display:flex;gap:12px}.fci{flex:1;border:1px solid #2e2e3e;border-radius:8px;padding:12px}</style></head><body>'+
+  '<h1 style="font-size:22px;font-weight:700;margin-bottom:4px">Отчёт по оценке бизнес-идеи</h1>'+
+  '<div style="color:#5c5a72;font-size:13px;margin-bottom:20px">AI-оценщик для фаундеров</div>'+
+  '<div class="verdict"><div style="font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:'+vColor+';margin-bottom:6px">Вердикт · '+r.score_total+'/100</div><div style="font-size:26px;font-weight:700;color:'+vColor+';margin-bottom:8px">'+vTitle+'</div><div style="font-size:13px">'+r.summary+'</div></div>'+
+  '<h2>Юнит-экономика</h2><table><tr><td>LTV / CAC</td><td><b>'+ratioTxt+'</b></td></tr><tr><td>Payback</td><td><b>'+(c.payback!==null?c.payback+' мес.':'—')+'</b></td></tr><tr><td>Churn'+(c.churnAssumed?' *':'')+'</td><td><b>'+c.churn+'%</b></td></tr><tr><td>LTV'+(c.ltvAssumed?' *':'')+'</td><td><b>'+(c.ltv||'—')+'</b></td></tr><tr><td>Runway</td><td><b>'+(c.runway?c.runway+' мес.':'нет данных')+'</b></td></tr></table>'+
+  ((c.churnAssumed||c.ltvAssumed)?'<div style="font-size:11px;color:#5c5a72;margin-top:6px">* типовые/расчётные значения</div>':'')+
+  '<h2>Скоркард</h2><table>'+scRows+'</table>'+
+  '<h2>Риски</h2>'+riskRows+
+  '<h2>Каналы</h2><table>'+chanRows+'</table>'+
+  '<h2>Прогноз выручки (12 мес.)</h2><div class="fc">'+
+  '<div class="fci"><div style="font-size:11px;color:#888;margin-bottom:4px">МЕДВЕЖИЙ</div><div style="font-size:18px;font-weight:700;color:#FF4D6A">'+r.forecast.bear_arr+'</div><div style="font-size:11px;color:#888">'+r.forecast.bear+'</div></div>'+
+  '<div class="fci"><div style="font-size:11px;color:#888;margin-bottom:4px">БАЗОВЫЙ</div><div style="font-size:18px;font-weight:700;color:#7C6FFF">'+r.forecast.base_arr+'</div><div style="font-size:11px;color:#888">'+r.forecast.base+'</div></div>'+
+  '<div class="fci"><div style="font-size:11px;color:#888;margin-bottom:4px">БЫЧИЙ</div><div style="font-size:18px;font-weight:700;color:#00C98D">'+r.forecast.bull_arr+'</div><div style="font-size:11px;color:#888">'+r.forecast.bull+'</div></div></div>'+
+  '<h2>Приоритетные действия</h2><ol>'+actRows+'</ol>'+
+  '</body></html>';
+  var blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  var isMobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+  if(isMobile){
+    // Mobile browsers (especially iOS Safari/WebView) often block or silently
+    // fail programmatic Blob downloads. Most reliable path: open the report
+    // in a new tab as a data URI so the user can use native "Share" / "Save to Files".
+    var reader=new FileReader();
+    reader.onload=function(){
+      var win=window.open();
+      if(win){
+        win.document.write(html);
+        win.document.close();
+      }else{
+        // Popup blocked — fallback to navigating current tab
+        var a=document.createElement('a');
+        a.href=reader.result;
+        a.target='_blank';
+        a.rel='noopener';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    };
+    reader.readAsDataURL(blob);
+    showExportHint('Отчёт открылся в новой вкладке. Чтобы сохранить — нажмите «Поделиться» в браузере → «Сохранить в Файлы», либо «Сохранить как PDF».');
+  }else{
+    // Desktop: standard Blob download via temporary link works reliably.
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    a.href=url;
+    a.download='startup-report.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){URL.revokeObjectURL(url)},1000);
+  }
+}
+
+function showExportHint(msg){
+  var hintEl=document.querySelector('.export-hint');
+  if(hintEl){
+    var original=hintEl.textContent;
+    hintEl.textContent=msg;
+    hintEl.style.color='var(--accent)';
+    setTimeout(function(){hintEl.textContent=original;hintEl.style.color='';},6000);
+  }
+}
+
+function restartQuiz(){location.reload()}
+
+// ===== DEMO DATA =====
+var DEMO_STATE={q1:'saas',q2:['b2b','ai'],q3a:'SaaS для автоматизации закрывающих документов (акты, счета, договоры) для малого бизнеса в СНГ через AI',q3b:'Владельцы малого бизнеса тратят 4–8 часов в месяц на рутинные бухгалтерские документы и ошибаются в реквизитах',q3c:'LLM-модели теперь достаточно точны для работы с юридическими шаблонами, а малый бизнес массово переходит в онлайн после 2022',q3d:'ИП и ООО с выручкой 1–30 млн ₽/год',q3e:'Моё дело, Контур.Эльба',q4:'sub_monthly',q5:['seo','cold_outreach','partnerships'],q6a:'890',q6b:'1200',q6c:'',q6d:'',q6e:'3000000',q6f:'Россия + Казахстан',q7a:'indirect',q7b:'niche',q8:'adjacent',q9team:'solo',q9:'mvp'};
+
+var DEMO_RESULT={verdict:"Rework",score_total:68,summary:"Идея решает реальную боль понятной аудитории, а ниша автоматизации для малого бизнеса в СНГ активно растёт. Однако конкуренция с Контур и 1С-экосистемой создаёт серьёзный барьер доверия, и продукту нужна чёткая специализация по вертикали или типу бизнеса, чтобы не раствориться среди более крупных игроков.",scores:{market:{value:8,why:"50K+ запросов/мес по теме, растущий онлайн-сегмент МСБ"},model:{value:7,why:"Подписка понятна рынку, цена адекватна сегменту"},competition:{value:5,why:"Контур и 1С занимают 60%+ рынка с глубокой интеграцией"},economics:{value:6,why:"LTV/CAC 2.1x — ниже целевых 3x, но payback быстрый"},execution:{value:6,why:"Смежный опыт в финтехе, не прямой домен-экспертиз"},regulation:{value:5,why:"Зависимость от требований ФНС к электронному документообороту"}},risks:[{level:"high",title:"1С-экосистема и Контур",desc:"Крупные игроки покрывают 60%+ рынка. Без чёткой специализации продукт будет проигрывать по доверию и интеграциям."},{level:"med",title:"LTV/CAC на грани",desc:"Соотношение 2.1x — ниже рекомендуемых 3x. Нужно либо снизить CAC через SEO, либо поднять средний чек."},{level:"med",title:"Регуляторный риск",desc:"Изменения в требованиях к электронному документообороту (ФНС, ФНАС) могут потребовать быстрой перестройки шаблонов."},{level:"low",title:"Сезонность Q4",desc:"Конец года — пик спроса на закрывающие документы, но и пик активности конкурентов с акциями."}],channels:[{name:"SEO / Контент",potential:"Высокий",note:"«Как оформить акт выполненных работ» — 50K+ запросов/мес"},{name:"Холодные продажи",potential:"Средний",note:"B2B-аудитория отвечает на прямой контакт, но цикл 2–4 недели"},{name:"Партнёрства с бухгалтерами",potential:"Высокий",note:"Бухгалтеры-аутсорсеры — идеальные реселлеры, рекомендуют клиентам"}],forecast:{bear:"x3 MRR",base:"x8 MRR",bull:"x20 MRR",bear_arr:"~320K ₽",base_arr:"~1.1M ₽",bull_arr:"~2.9M ₽"},geo_scalability:"Средняя",seasonality:"Умеренная",structural_risk_comments:["SaaS с месячной подпиской: типовой churn для B2B 4–6%. При churn >8% LTV падает ниже CAC — следите за retention с первого месяца."]};
+
+var DEMO_COMPUTED=compute(DEMO_STATE);
+// Override with demo specific values for display
+DEMO_COMPUTED.ratio=2.1;DEMO_COMPUTED.grade='poor';DEMO_COMPUTED.payback=1.3;DEMO_COMPUTED.churn=5;DEMO_COMPUTED.churnAssumed=true;DEMO_COMPUTED.ltv=Math.round(890/(5/100));DEMO_COMPUTED.ltvAssumed=true;DEMO_COMPUTED.runway=7;DEMO_COMPUTED.flags=[];
+
+document.getElementById('demo-content').innerHTML=renderReport(DEMO_RESULT,DEMO_COMPUTED,DEMO_STATE);
+</script>
+</body>
+</html>
