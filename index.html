@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -463,6 +464,22 @@ textarea{min-height:54px}
 // ===== STATE =====
 const S={q1:null,q2:[],q3a:'',q3b:'',q3c:'',q3d:'',q3e:'',q4:null,q5:[],q6a:'',q6b:'',q6c:'',q6d:'',q6e:'',q6f:'',q7a:null,q7b:null,q8:null,q9team:null,q9:null};
 let lastR=null,lastC=null;
+let CURRENT_STEP=1;
+
+// ===== TELEGRAM CLOUD STORAGE (прогресс квиза) =====
+const TG=(window.Telegram&&window.Telegram.WebApp)?window.Telegram.WebApp:null;
+if(TG)TG.ready();
+
+function saveProgress(){
+  if(!TG||!TG.CloudStorage)return;
+  TG.CloudStorage.setItem('quiz_step',String(CURRENT_STEP),function(err){if(err)console.error('CloudStorage setItem quiz_step error',err)});
+  TG.CloudStorage.setItem('quiz_answers',JSON.stringify(S),function(err){if(err)console.error('CloudStorage setItem quiz_answers error',err)});
+}
+
+function clearProgress(){
+  if(!TG||!TG.CloudStorage)return;
+  TG.CloudStorage.removeItems(['quiz_step','quiz_answers'],function(err){if(err)console.error('CloudStorage removeItems error',err)});
+}
 
 // ===== TABS =====
 function switchTab(t){
@@ -480,6 +497,7 @@ function single(gid,key,nb){
       document.getElementById(gid).querySelectorAll('.opt').forEach(function(x){x.classList.remove('sel')});
       b.classList.add('sel');S[key]=b.dataset.val;
       if(nb)document.getElementById(nb).disabled=false;
+      saveProgress();
     };
   });
 }
@@ -489,6 +507,7 @@ function multi(gid,key,nb){
       b.classList.toggle('sel');
       S[key]=Array.from(document.getElementById(gid).querySelectorAll('.opt.sel')).map(function(x){return x.dataset.val});
       if(nb)document.getElementById(nb).disabled=S[key].length===0;
+      saveProgress();
     };
   });
 }
@@ -501,6 +520,7 @@ document.getElementById('q7a').querySelectorAll('.opt').forEach(function(b){
     document.getElementById('q7a').querySelectorAll('.opt').forEach(function(x){x.classList.remove('sel')});
     b.classList.add('sel');S.q7a=b.dataset.val;
     if(S.q7a&&S.q7b)document.getElementById('n7').disabled=false;
+    saveProgress();
   };
 });
 document.getElementById('q7b').querySelectorAll('.opt').forEach(function(b){
@@ -508,17 +528,60 @@ document.getElementById('q7b').querySelectorAll('.opt').forEach(function(b){
     document.getElementById('q7b').querySelectorAll('.opt').forEach(function(x){x.classList.remove('sel')});
     b.classList.add('sel');S.q7b=b.dataset.val;
     if(S.q7a&&S.q7b)document.getElementById('n7').disabled=false;
+    saveProgress();
   };
 });
 single('q8','q8','n8');
 single('q9team','q9team','n9team');
 single('q9','q9','n9');
 
+// ===== RESTORE PROGRESS FROM CLOUD STORAGE =====
+function applyStateToUI(){
+  function markSel(gid,key){
+    var vals=Array.isArray(S[key])?S[key]:(S[key]!=null?[S[key]]:[]);
+    document.getElementById(gid).querySelectorAll('.opt').forEach(function(b){
+      b.classList.toggle('sel',vals.indexOf(b.dataset.val)>=0);
+    });
+  }
+  markSel('q1','q1');markSel('q2','q2');markSel('q4','q4');markSel('q5','q5');
+  markSel('q7a','q7a');markSel('q7b','q7b');markSel('q8','q8');
+  markSel('q9team','q9team');markSel('q9','q9');
+
+  ['q3a','q3b','q3c','q3d','q3e','q6f'].forEach(function(id){if(S[id])document.getElementById(id).value=S[id]});
+  ['q6a','q6b','q6c','q6d','q6e'].forEach(function(id){if(S[id])document.getElementById(id).value=S[id]});
+
+  if(S.q1)document.getElementById('n1').disabled=false;
+  if(S.q2&&S.q2.length)document.getElementById('n2').disabled=false;
+  if(S.q4)document.getElementById('n4').disabled=false;
+  if(S.q5&&S.q5.length)document.getElementById('n5').disabled=false;
+  if(S.q7a&&S.q7b)document.getElementById('n7').disabled=false;
+  if(S.q8)document.getElementById('n8').disabled=false;
+  if(S.q9team)document.getElementById('n9team').disabled=false;
+  if(S.q9)document.getElementById('n9').disabled=false;
+
+  setPlaceholders();
+}
+
+function restoreProgress(){
+  if(!TG||!TG.CloudStorage)return;
+  TG.CloudStorage.getItems(['quiz_step','quiz_answers'],function(err,result){
+    if(err||!result||!result.quiz_answers)return;
+    try{
+      var parsed=JSON.parse(result.quiz_answers);
+      Object.keys(parsed).forEach(function(k){S[k]=parsed[k]});
+    }catch(e){return}
+    applyStateToUI();
+    var savedStep=parseInt(result.quiz_step,10);
+    if(savedStep>=1&&savedStep<=10)showStep(savedStep);
+  });
+}
+restoreProgress();
+
 ['q3a','q3b','q3c','q3d','q3e','q6f'].forEach(function(id){
-  document.getElementById(id).oninput=function(){S[id]=this.value};
+  document.getElementById(id).oninput=function(){S[id]=this.value;saveProgress()};
 });
 ['q6a','q6b','q6c','q6d','q6e'].forEach(function(id){
-  document.getElementById(id).oninput=function(){S[id]=this.value};
+  document.getElementById(id).oninput=function(){S[id]=this.value;saveProgress()};
 });
 
 // ===== UNKNOWN TOGGLE =====
@@ -530,6 +593,7 @@ function toggleUnknown(btn){
   if(on){input.value='';S[btn.dataset.t]='';}
   note.classList.toggle('show',on);
   btn.textContent=on?'Указать':'Не знаю';
+  saveProgress();
 }
 
 // ===== PLACEHOLDERS BY MODEL =====
@@ -549,9 +613,10 @@ function showStep(n){
     document.getElementById('step-counter').textContent='Шаг '+n+' из 10';
     document.getElementById('step-pct').textContent=p+'%';
   }
+  if(n>=1&&n<=10)CURRENT_STEP=n;
 }
-function next(n){if(n===5)setPlaceholders();showStep(n+1)}
-function back(n){showStep(n-1)}
+function next(n){if(n===5)setPlaceholders();showStep(n+1);saveProgress();}
+function back(n){showStep(n-1);saveProgress();}
 
 // ===== COMPUTE =====
 function num(v){var n=parseFloat(v);return isNaN(n)?0:n}
@@ -766,6 +831,7 @@ async function runAI(){
     if(warnings.length>0)html=showSanityWarningsHTML(warnings);
     document.getElementById('result-content').innerHTML=html+renderReport(result,c,S);
     showStep(12);
+    clearProgress();
   }catch(e){
     lastC=c;
     showErrorScreen(e.message,warnings,c);
@@ -905,7 +971,7 @@ function showExportHint(msg){
   }
 }
 
-function restartQuiz(){location.reload()}
+function restartQuiz(){clearProgress();location.reload()}
 
 // ===== DEMO DATA =====
 var DEMO_STATE={q1:'saas',q2:['b2b','ai'],q3a:'SaaS для автоматизации закрывающих документов (акты, счета, договоры) для малого бизнеса в СНГ через AI',q3b:'Владельцы малого бизнеса тратят 4–8 часов в месяц на рутинные бухгалтерские документы и ошибаются в реквизитах',q3c:'LLM-модели теперь достаточно точны для работы с юридическими шаблонами, а малый бизнес массово переходит в онлайн после 2022',q3d:'ИП и ООО с выручкой 1–30 млн ₽/год',q3e:'Моё дело, Контур.Эльба',q4:'sub_monthly',q5:['seo','cold_outreach','partnerships'],q6a:'890',q6b:'1200',q6c:'',q6d:'',q6e:'3000000',q6f:'Россия + Казахстан',q7a:'indirect',q7b:'niche',q8:'adjacent',q9team:'solo',q9:'mvp'};
