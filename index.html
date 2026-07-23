@@ -482,8 +482,6 @@ function clearProgress(){
 }
 
 // ===== TELEGRAM WEBAPP =====
-var TG=window.Telegram&&window.Telegram.WebApp;
-if(TG)TG.ready();
 function getUserId(){
   try{
     return (TG&&TG.initDataUnsafe&&TG.initDataUnsafe.user&&TG.initDataUnsafe.user.id)||null;
