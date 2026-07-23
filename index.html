@@ -481,6 +481,15 @@ function clearProgress(){
   TG.CloudStorage.removeItems(['quiz_step','quiz_answers'],function(err){if(err)console.error('CloudStorage removeItems error',err)});
 }
 
+// ===== TELEGRAM WEBAPP =====
+var TG=window.Telegram&&window.Telegram.WebApp;
+if(TG)TG.ready();
+function getUserId(){
+  try{
+    return (TG&&TG.initDataUnsafe&&TG.initDataUnsafe.user&&TG.initDataUnsafe.user.id)||null;
+  }catch(e){return null;}
+}
+
 // ===== TABS =====
 function switchTab(t){
   document.querySelectorAll('.tab').forEach(function(el,i){el.classList.toggle('active',['quiz','demo'][i]===t)});
@@ -774,7 +783,9 @@ function startAnalyze(){
 }
 
 // URL прокси-сервера на Railway
-var PROXY_URL='https://tg-bot-1-production-e96b.up.railway.app/analyze';
+var API_BASE='https://tg-bot-1-production-e96b.up.railway.app';
+var PROXY_URL=API_BASE+'/analyze';
+var INVOICE_URL=API_BASE+'/create-invoice';
 
 // ===== SANITY CHECK =====
 function sanityCheck(s,c){
@@ -822,8 +833,12 @@ async function runAI(){
     var resp=await fetch(PROXY_URL,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({answers:S,computed:c,prompt:prompt})
+      body:JSON.stringify({answers:S,computed:c,prompt:prompt,user_id:getUserId()})
     });
+    if(resp.status===402){
+      showNoCreditsScreen(warnings);
+      return;
+    }
     if(!resp.ok)throw new Error('HTTP '+resp.status);
     var result=await resp.json();
     lastR=result;lastC=c;
@@ -848,6 +863,36 @@ function showSanityWarningsHTML(warnings){
       '<div style="font-size:12px;color:var(--text2);line-height:1.5">'+w.desc+'</div>'+
     '</div>';
   }).join('');
+}
+
+function showNoCreditsScreen(warnings){
+  var html='';
+  if(warnings.length>0)html=showSanityWarningsHTML(warnings);
+  html+='<div class="verdict-card v-reject" style="margin-top:'+(warnings.length>0?'1rem':'0')+'">'+
+    '<div class="verdict-eyebrow">Кредиты закончились</div>'+
+    '<div class="verdict-heading" style="font-size:20px"><i class="ti ti-coin-off"></i> Нужны кредиты для анализа</div>'+
+    '<div class="verdict-text">Бесплатный анализ уже использован. Купите ещё, чтобы продолжить оценку идей.</div>'+
+  '</div>';
+  html+='<button class="btn-next" style="width:100%;justify-content:center;margin-top:1rem" onclick="createPaymentInvoice(149)"><i class="ti ti-star"></i> Купить 1 анализ за 149 ⭐</button>';
+  html+='<button class="btn-next" style="width:100%;justify-content:center;margin-top:0.5rem" onclick="createPaymentInvoice(399)"><i class="ti ti-stars"></i> Пакет 5 анализов за 399 ⭐</button>';
+  html+='<button class="btn-restart" onclick="restartQuiz()">↺ Начать заново</button>';
+  document.getElementById('result-content').innerHTML=html;
+  showStep(12);
+}
+
+async function createPaymentInvoice(stars){
+  var userId=getUserId();
+  try{
+    var resp=await fetch(INVOICE_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({user_id:userId,stars_amount:stars})
+    });
+    if(!resp.ok)throw new Error('HTTP '+resp.status);
+    if(TG)TG.showAlert('Инвойс отправлен в чат с ботом');
+  }catch(e){
+    if(TG)TG.showAlert('Ошибка создания платежа');
+  }
 }
 
 function showErrorScreen(errMsg,warnings,c){
