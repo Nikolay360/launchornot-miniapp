@@ -784,6 +784,25 @@ function startAnalyze(){
 var API_BASE='https://tg-bot-1-production-e96b.up.railway.app';
 var PROXY_URL=API_BASE+'/analyze';
 var INVOICE_URL=API_BASE+'/create-invoice';
+var CHECK_CREDITS_URL=API_BASE+'/check-credits';
+
+// ===== CHECK CREDITS ON LOAD =====
+async function checkCreditsOnLoad(){
+  var userId=getUserId();
+  if(!userId)return;
+  try{
+    var resp=await fetch(CHECK_CREDITS_URL+'?user_id='+encodeURIComponent(userId));
+    if(!resp.ok)return;
+    var data=await resp.json();
+    if(data.can_analyze===false){
+      showStep(12);
+      showNoCreditsScreen([]);
+    }
+  }catch(e){
+    // сеть недоступна — не блокируем показ опросника
+  }
+}
+checkCreditsOnLoad();
 
 // ===== SANITY CHECK =====
 function sanityCheck(s,c){
