@@ -446,8 +446,36 @@ textarea{min-height:54px}
         <div class="export-section">
           <button class="btn-export" onclick="doExport()"><i class="ti ti-download"></i> Скачать отчёт (HTML-файл)</button>
           <div class="export-hint">Откройте в браузере → Ctrl+P → «Сохранить как PDF». Кириллица сохраняется без проблем.</div>
+          <button class="btn-next" style="width:100%;justify-content:center;margin-top:0.75rem" onclick="showFeedbackScreen()"><i class="ti ti-message-2"></i> Оставить отзыв</button>
           <button class="btn-restart" onclick="restartQuiz()">↺ Оценить другую идею</button>
         </div>
+      </div>
+
+      <!-- FEEDBACK -->
+      <div class="step" id="s13">
+        <div class="step-title">Оцените отчёт</div>
+        <div class="step-sub">Ваш отзыв поможет сделать анализ точнее</div>
+        <div class="field-wrap">
+          <div class="field-label-main">Совпал ли вердикт с твоим мнением?</div>
+          <div class="opt-grid" id="fq1">
+            <button class="opt" data-val="yes">Да</button>
+            <button class="opt" data-val="no">Нет</button>
+            <button class="opt" data-val="unsure">Не знаю</button>
+          </div>
+        </div>
+        <div class="field-wrap">
+          <div class="field-label-main">Что было полезно в отчёте?</div>
+          <textarea id="fq2" rows="3" placeholder="Необязательно"></textarea>
+        </div>
+        <div class="field-wrap">
+          <div class="field-label-main">Заплатил бы за этот анализ?</div>
+          <div class="opt-grid" id="fq3">
+            <button class="opt" data-val="yes">Да</button>
+            <button class="opt" data-val="no">Нет</button>
+          </div>
+        </div>
+        <button class="btn-next" style="width:100%;justify-content:center" id="fsubmit" disabled onclick="submitFeedback()">Отправить отзыв</button>
+        <button class="btn-restart" onclick="showStep(12)">← Назад к отчёту</button>
       </div>
     </div>
   </div>
@@ -1034,6 +1062,56 @@ function showExportHint(msg){
 }
 
 function restartQuiz(){clearProgress();location.reload()}
+
+// ===== FEEDBACK =====
+var FEEDBACK_URL=API_BASE+'/feedback';
+var FB={verdict_correct:null,useful_feedback:'',would_pay:null};
+
+function singleFB(gid,onPick){
+  document.getElementById(gid).querySelectorAll('.opt').forEach(function(b){
+    b.onclick=function(){
+      document.getElementById(gid).querySelectorAll('.opt').forEach(function(x){x.classList.remove('sel')});
+      b.classList.add('sel');onPick(b.dataset.val);
+    };
+  });
+}
+singleFB('fq1',function(v){FB.verdict_correct=v;updateFeedbackSubmit();});
+singleFB('fq3',function(v){FB.would_pay=v;updateFeedbackSubmit();});
+document.getElementById('fq2').oninput=function(){FB.useful_feedback=this.value;};
+
+function updateFeedbackSubmit(){
+  document.getElementById('fsubmit').disabled=!(FB.verdict_correct&&FB.would_pay);
+}
+
+function showFeedbackScreen(){
+  showStep(13);
+}
+
+async function submitFeedback(){
+  var btn=document.getElementById('fsubmit');
+  btn.disabled=true;btn.textContent='Отправка...';
+  try{
+    var resp=await fetch(FEEDBACK_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({user_id:getUserId(),verdict_correct:FB.verdict_correct,useful_feedback:FB.useful_feedback,would_pay:FB.would_pay})
+    });
+    if(!resp.ok)throw new Error('HTTP '+resp.status);
+    showFeedbackThanks();
+  }catch(e){
+    btn.disabled=false;btn.textContent='Отправить отзыв';
+    if(TG)TG.showAlert('Не удалось отправить отзыв. Попробуйте ещё раз.');
+  }
+}
+
+function showFeedbackThanks(){
+  document.getElementById('s13').innerHTML=
+    '<div style="text-align:center;padding:3rem 0">'+
+      '<div style="font-size:40px;margin-bottom:1rem">🙏</div>'+
+      '<div style="font-size:18px;font-weight:600;margin-bottom:8px">Спасибо за фидбэк!</div>'+
+      '<button class="btn-next" style="margin:1rem auto 0" onclick="restartQuiz()">↺ Попробовать ещё раз</button>'+
+    '</div>';
+}
 
 // ===== DEMO DATA =====
 var DEMO_STATE={q1:'saas',q2:['b2b','ai'],q3a:'SaaS для автоматизации закрывающих документов (акты, счета, договоры) для малого бизнеса в СНГ через AI',q3b:'Владельцы малого бизнеса тратят 4–8 часов в месяц на рутинные бухгалтерские документы и ошибаются в реквизитах',q3c:'LLM-модели теперь достаточно точны для работы с юридическими шаблонами, а малый бизнес массово переходит в онлайн после 2022',q3d:'ИП и ООО с выручкой 1–30 млн ₽/год',q3e:'Моё дело, Контур.Эльба',q4:'sub_monthly',q5:['seo','cold_outreach','partnerships'],q6a:'890',q6b:'1200',q6c:'',q6d:'',q6e:'3000000',q6f:'Россия + Казахстан',q7a:'indirect',q7b:'niche',q8:'adjacent',q9team:'solo',q9:'mvp'};
