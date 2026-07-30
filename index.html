@@ -349,6 +349,11 @@ textarea{min-height:54px}
           <div class="field-note" id="n6e">Без бюджета runway рассчитать невозможно — этот блок в отчёте будет пропущен.</div>
         </div>
         <div class="field-wrap">
+          <div class="field-label">Runway <span class="field-hint">сколько месяцев до нуля на счету?</span></div>
+          <div class="num-row"><input type="number" id="q6g" min="0" step="1" placeholder="12" value="7"></div>
+          <div class="field-note">Сколько месяцев ваш стартап может работать на текущем запасе денег без новых доходов</div>
+        </div>
+        <div class="field-wrap">
           <div class="field-label-main">Целевая география</div>
           <input type="text" id="q6f" placeholder="Например: Россия + СНГ">
         </div>
@@ -490,7 +495,7 @@ textarea{min-height:54px}
 
 <script>
 // ===== STATE =====
-const S={q1:null,q2:[],q3a:'',q3b:'',q3c:'',q3d:'',q3e:'',q4:null,q5:[],q6a:'',q6b:'',q6c:'',q6d:'',q6e:'',q6f:'',q7a:null,q7b:null,q8:null,q9team:null,q9:null};
+const S={q1:null,q2:[],q3a:'',q3b:'',q3c:'',q3d:'',q3e:'',q4:null,q5:[],q6a:'',q6b:'',q6c:'',q6d:'',q6e:'',q6f:'',q6g:'7',q7a:null,q7b:null,q8:null,q9team:null,q9:null};
 let lastR=null,lastC=null;
 let CURRENT_STEP=1;
 
@@ -583,7 +588,7 @@ function applyStateToUI(){
   markSel('q9team','q9team');markSel('q9','q9');
 
   ['q3a','q3b','q3c','q3d','q3e','q6f'].forEach(function(id){if(S[id])document.getElementById(id).value=S[id]});
-  ['q6a','q6b','q6c','q6d','q6e'].forEach(function(id){if(S[id])document.getElementById(id).value=S[id]});
+  ['q6a','q6b','q6c','q6d','q6e','q6g'].forEach(function(id){if(S[id])document.getElementById(id).value=S[id]});
 
   if(S.q1)document.getElementById('n1').disabled=false;
   if(S.q2&&S.q2.length)document.getElementById('n2').disabled=false;
@@ -615,7 +620,7 @@ restoreProgress();
 ['q3a','q3b','q3c','q3d','q3e','q6f'].forEach(function(id){
   document.getElementById(id).oninput=function(){S[id]=this.value;saveProgress()};
 });
-['q6a','q6b','q6c','q6d','q6e'].forEach(function(id){
+['q6a','q6b','q6c','q6d','q6e','q6g'].forEach(function(id){
   document.getElementById(id).oninput=function(){S[id]=this.value;saveProgress()};
 });
 
@@ -668,14 +673,13 @@ function compute(s){
   var ratio=(cac>0&&ltv>0)?Math.round(ltv/cac*100)/100:null;
   var grade=ratio===null?'unknown':ratio<1?'critical':ratio<3?'poor':ratio<5?'ok':'good';
   var payback=(price>0&&cac>0)?Math.round(cac/price*10)/10:null;
-  var burn=budget>0?Math.round(budget*0.15):null;
-  var runway=burn?Math.round(budget/burn):null;
+  var runway=budget>0?(num(s.q6g)||7):null;
   var flags=[];
   if(s.q1==='marketplace')flags.push('INTERMEDIARY_DILEMMA');
   if(s.q1==='unlimited_sub')flags.push('MARGIN_SQUEEZE');
   if(s.q1==='transaction')flags.push('HIGH_CHURN');
   if(s.q2&&['fintech','medtech','food'].some(function(n){return s.q2.indexOf(n)>=0}))flags.push('REGULATORY_BLOCK');
-  return{price,cac,ltv,ltvAssumed,budget,churn,churnAssumed,ratio,grade,payback,runway,burn,flags};
+  return{price,cac,ltv,ltvAssumed,budget,churn,churnAssumed,ratio,grade,payback,runway,flags};
 }
 
 // ===== LABELS =====
@@ -705,7 +709,7 @@ function renderReport(r,c,st){
   if(teamVal)metricsRows+='<div class="metrics-row"><span class="metrics-label">Команда</span><span class="metrics-val">'+(teamLabel[teamVal]||teamVal)+'</span></div>';
   var metricsNote='';
   if(c.churnAssumed||c.ltvAssumed)metricsNote+='* типовые/расчётные значения, не введены пользователем. ';
-  if(c.runway)metricsNote+='Runway при burn rate ≈15% бюджета в месяц — грубая оценка.';
+  if(c.runway)metricsNote+='Runway указан пользователем.';
 
   // SCORES
   var scHTML='';
