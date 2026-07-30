@@ -450,7 +450,7 @@ textarea{min-height:54px}
         <div id="result-content"></div>
         <div class="export-section">
           <button class="btn-export" onclick="doExport()"><i class="ti ti-download"></i> Скачать отчёт (HTML-файл)</button>
-          <div class="export-hint">Откройте в браузере → Ctrl+P → «Сохранить как PDF». Кириллица сохраняется без проблем.</div>
+          <div class="export-hint">Отчёт придёт файлом в чат с ботом.</div>
           <button class="btn-next" style="width:100%;justify-content:center;margin-top:0.75rem" onclick="showFeedbackScreen()"><i class="ti ti-message-2"></i> Оставить отзыв</button>
           <button class="btn-restart" onclick="restartQuiz()">↺ Оценить другую идею</button>
         </div>
@@ -990,68 +990,25 @@ function buildPrompt(s,c){
 }
 
 // ===== EXPORT =====
-function doExport(){
-  if(!lastR||!lastC)return;
-  var r=lastR,c=lastC;
-  var vTitle=r.verdict==='Launch'?'Запускать':r.verdict==='Rework'?'Доработать':'Отклонить';
-  var vColor=r.verdict==='Launch'?'#00C98D':r.verdict==='Rework'?'#FFB020':'#FF4D6A';
-  var vBg=r.verdict==='Launch'?'#0a2a20':r.verdict==='Rework'?'#2a1f0a':'#2a0a12';
-  var ratioTxt=c.ratio!==null?c.ratio+'x — '+GRADE_LABEL[c.grade]:'— нет данных';
-  var scRows=Object.keys(r.scores).map(function(k){var e=r.scores[k];var v=(typeof e==='object')?e.value:e;var why=(typeof e==='object')?e.why:'';return '<tr><td>'+(SCORE_NAMES[k]||k)+(why?'<br><span style="font-size:11px;color:#5c5a72">'+why+'</span>':'')+'</td><td style="vertical-align:top"><b>'+v+'/10</b></td></tr>'}).join('');
-  var riskRows=r.risks.map(function(ri){var col=ri.level==='high'?'#FF4D6A':ri.level==='med'?'#FFB020':'#00C98D';return '<div style="border-left:3px solid '+col+';padding:8px 12px;margin-bottom:8px;background:#1a1a24;border-radius:4px"><b style="color:'+col+'">'+ri.title+'</b><br><span style="color:#888;font-size:13px">'+ri.desc+'</span></div>';}).join('');
-  var chanRows=r.channels.map(function(ch){return '<tr><td>'+ch.name+'</td><td>'+ch.potential+'</td><td style="color:#888;font-size:12px">'+(ch.note||'')+'</td></tr>'}).join('');
-  var actRows=r.actions.map(function(a,i){return '<li style="margin-bottom:6px">'+a+'</li>'}).join('');
-  var html='<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><title>Отчёт — '+vTitle+'</title><style>body{background:#0f0f13;color:#f0eef8;font-family:Arial,sans-serif;max-width:720px;margin:40px auto;padding:0 20px;line-height:1.6}h2{font-size:13px;text-transform:uppercase;letter-spacing:0.07em;color:#5c5a72;border-top:1px solid #2e2e3e;padding-top:18px;margin-top:28px;margin-bottom:12px}table{width:100%;border-collapse:collapse;font-size:14px}td{padding:6px 0;border-bottom:1px solid #2e2e3e}.verdict{background:'+vBg+';border:1px solid '+vColor+'40;border-radius:10px;padding:20px;margin-bottom:10px}.fc{display:flex;gap:12px}.fci{flex:1;border:1px solid #2e2e3e;border-radius:8px;padding:12px}</style></head><body>'+
-  '<h1 style="font-size:22px;font-weight:700;margin-bottom:4px">Отчёт по оценке бизнес-идеи</h1>'+
-  '<div style="color:#5c5a72;font-size:13px;margin-bottom:20px">AI-оценщик для фаундеров</div>'+
-  '<div class="verdict"><div style="font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:'+vColor+';margin-bottom:6px">Вердикт · '+r.score_total+'/100</div><div style="font-size:26px;font-weight:700;color:'+vColor+';margin-bottom:8px">'+vTitle+'</div><div style="font-size:13px">'+r.summary+'</div></div>'+
-  '<h2>Юнит-экономика</h2><table><tr><td>LTV / CAC</td><td><b>'+ratioTxt+'</b></td></tr><tr><td>Payback</td><td><b>'+(c.payback!==null?c.payback+' мес.':'—')+'</b></td></tr><tr><td>Churn'+(c.churnAssumed?' *':'')+'</td><td><b>'+c.churn+'%</b></td></tr><tr><td>LTV'+(c.ltvAssumed?' *':'')+'</td><td><b>'+(c.ltv||'—')+'</b></td></tr><tr><td>Runway</td><td><b>'+(c.runway?c.runway+' мес.':'нет данных')+'</b></td></tr></table>'+
-  ((c.churnAssumed||c.ltvAssumed)?'<div style="font-size:11px;color:#5c5a72;margin-top:6px">* типовые/расчётные значения</div>':'')+
-  '<h2>Скоркард</h2><table>'+scRows+'</table>'+
-  '<h2>Риски</h2>'+riskRows+
-  '<h2>Каналы</h2><table>'+chanRows+'</table>'+
-  '<h2>Прогноз выручки (12 мес.)</h2><div class="fc">'+
-  '<div class="fci"><div style="font-size:11px;color:#888;margin-bottom:4px">МЕДВЕЖИЙ</div><div style="font-size:18px;font-weight:700;color:#FF4D6A">'+r.forecast.bear_arr+'</div><div style="font-size:11px;color:#888">'+r.forecast.bear+'</div></div>'+
-  '<div class="fci"><div style="font-size:11px;color:#888;margin-bottom:4px">БАЗОВЫЙ</div><div style="font-size:18px;font-weight:700;color:#7C6FFF">'+r.forecast.base_arr+'</div><div style="font-size:11px;color:#888">'+r.forecast.base+'</div></div>'+
-  '<div class="fci"><div style="font-size:11px;color:#888;margin-bottom:4px">БЫЧИЙ</div><div style="font-size:18px;font-weight:700;color:#00C98D">'+r.forecast.bull_arr+'</div><div style="font-size:11px;color:#888">'+r.forecast.bull+'</div></div></div>'+
-  '<h2>Приоритетные действия</h2><ol>'+actRows+'</ol>'+
-  '</body></html>';
-  var blob=new Blob([html],{type:'text/html;charset=utf-8'});
-  var isMobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+var SEND_REPORT_URL=API_BASE+'/send-report';
 
-  if(isMobile){
-    // Mobile browsers (especially iOS Safari/WebView) often block or silently
-    // fail programmatic Blob downloads. Most reliable path: open the report
-    // in a new tab as a data URI so the user can use native "Share" / "Save to Files".
-    var reader=new FileReader();
-    reader.onload=function(){
-      var win=window.open();
-      if(win){
-        win.document.write(html);
-        win.document.close();
-      }else{
-        // Popup blocked — fallback to navigating current tab
-        var a=document.createElement('a');
-        a.href=reader.result;
-        a.target='_blank';
-        a.rel='noopener';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      }
-    };
-    reader.readAsDataURL(blob);
-    showExportHint('Отчёт открылся в новой вкладке. Чтобы сохранить — нажмите «Поделиться» в браузере → «Сохранить в Файлы», либо «Сохранить как PDF».');
-  }else{
-    // Desktop: standard Blob download via temporary link works reliably.
-    var url=URL.createObjectURL(blob);
-    var a=document.createElement('a');
-    a.href=url;
-    a.download='startup-report.html';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(function(){URL.revokeObjectURL(url)},1000);
+async function doExport(){
+  if(!lastR||!lastC)return;
+  var btn=document.querySelector('.btn-export');
+  var originalText=btn?btn.innerHTML:'';
+  if(btn){btn.disabled=true;btn.innerHTML='<i class="ti ti-loader"></i> Отправка...';}
+  try{
+    var resp=await fetch(SEND_REPORT_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({user_id:getUserId()})
+    });
+    if(!resp.ok)throw new Error('HTTP '+resp.status);
+    showExportHint('Отчёт отправлен в чат с ботом ✅');
+  }catch(e){
+    if(TG)TG.showAlert('Не удалось отправить отчёт. Попробуйте ещё раз.');
+  }finally{
+    if(btn){btn.disabled=false;btn.innerHTML=originalText;}
   }
 }
 
