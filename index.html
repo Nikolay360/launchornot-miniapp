@@ -197,6 +197,12 @@ textarea{min-height:54px}
 .btn-restart{margin-top:10px;width:100%;padding:8px;border-radius:var(--radius-sm);border:none;background:transparent;font-size:12px;color:var(--text3);cursor:pointer;font-family:var(--font);transition:color 0.15s}
 .btn-restart:hover{color:var(--text2)}
 
+/* HISTORY */
+.history-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:8px}
+.history-date{font-size:11px;color:var(--text3);margin-bottom:4px}
+.history-verdict{font-size:13px;font-weight:600;margin-bottom:2px}
+.history-desc{font-size:12px;color:var(--text2)}
+
 /* DEMO LABEL */
 .demo-banner{background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:var(--radius-sm);padding:8px 14px;font-size:12px;color:var(--accent);margin-bottom:1.5rem;display:flex;align-items:center;gap:8px}
 
@@ -471,8 +477,17 @@ textarea{min-height:54px}
           <button class="btn-export" onclick="doExport()"><i class="ti ti-download"></i> Скачать отчёт (HTML-файл)</button>
           <div class="export-hint">Отчёт придёт файлом в чат с ботом.</div>
           <button class="btn-next" style="width:100%;justify-content:center;margin-top:0.75rem" onclick="showFeedbackScreen()"><i class="ti ti-message-2"></i> Оставить отзыв</button>
+          <button class="btn-next" style="width:100%;justify-content:center;margin-top:0.5rem" onclick="showHistoryScreen()">📋 Моя история</button>
           <button class="btn-restart" onclick="restartQuiz()">↺ Оценить другую идею</button>
         </div>
+      </div>
+
+      <!-- HISTORY -->
+      <div class="step" id="s14">
+        <div class="step-title">Моя история</div>
+        <div class="step-sub">Последние анализы ваших идей</div>
+        <div id="history-content"></div>
+        <button class="btn-restart" onclick="showStep(12)">← Назад</button>
       </div>
 
       <!-- FEEDBACK -->
@@ -1088,6 +1103,59 @@ function showExportHint(msg){
 }
 
 function restartQuiz(){clearProgress();location.reload()}
+
+// ===== HISTORY =====
+var HISTORY_URL=API_BASE+'/history';
+var HISTORY_VERDICT_COLOR={Launch:'var(--green)',Rework:'var(--yellow)',Reject:'var(--red)'};
+
+function escapeHtml(s){
+  return String(s==null?'':s).replace(/[&<>"']/g,function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+
+function showHistoryScreen(){
+  showStep(14);
+  loadHistory();
+}
+
+async function loadHistory(){
+  var el=document.getElementById('history-content');
+  el.innerHTML='<div style="text-align:center;color:var(--text3);padding:2rem 0">Загрузка...</div>';
+  var userId=getUserId();
+  if(!userId){
+    el.innerHTML='<div style="text-align:center;color:var(--text3);padding:2rem 0">Не удалось определить пользователя</div>';
+    return;
+  }
+  try{
+    var resp=await fetch(HISTORY_URL+'?user_id='+encodeURIComponent(userId));
+    if(!resp.ok)throw new Error('HTTP '+resp.status);
+    var data=await resp.json();
+    renderHistory(data.items||[]);
+  }catch(e){
+    el.innerHTML='<div style="text-align:center;color:var(--text3);padding:2rem 0">Не удалось загрузить историю</div>';
+  }
+}
+
+function renderHistory(items){
+  var el=document.getElementById('history-content');
+  if(!items.length){
+    el.innerHTML='<div style="text-align:center;color:var(--text3);padding:2rem 0">Анализов пока нет</div>';
+    return;
+  }
+  el.innerHTML=items.map(function(it){
+    var color=HISTORY_VERDICT_COLOR[it.verdict]||'var(--text2)';
+    var raw=it.idea_description||'';
+    var desc=raw.length>60?raw.slice(0,60)+'…':raw;
+    var date=new Date((it.created_at||'').replace(' ','T')+'Z');
+    var dateStr=isNaN(date.getTime())?it.created_at:date.toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'});
+    return '<div class="history-card">'+
+      '<div class="history-date">'+escapeHtml(dateStr)+'</div>'+
+      '<div class="history-verdict" style="color:'+color+'">'+escapeHtml(it.verdict)+' · '+it.score_total+'/100</div>'+
+      '<div class="history-desc">'+escapeHtml(desc)+'</div>'+
+    '</div>';
+  }).join('');
+}
 
 // ===== FEEDBACK =====
 var FEEDBACK_URL=API_BASE+'/feedback';
