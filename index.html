@@ -61,7 +61,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15
 .field-wrap{margin-bottom:1rem}
 .field-label{font-size:12px;color:var(--text2);margin-bottom:5px;display:flex;justify-content:space-between;align-items:baseline}
 .field-hint{font-size:11px;color:var(--text3)}
+.field-desc{font-size:11px;color:var(--text3);margin-bottom:6px;line-height:1.4}
 .field-label-main{font-size:13px;color:var(--text);margin-bottom:5px;font-weight:500}
+.cur-sym{display:flex;align-items:center;justify-content:center;min-width:34px;padding:0 8px;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text2);font-size:14px;background:var(--bg3)}
 textarea,input[type=text],input[type=number]{
   width:100%;border:1px solid var(--border);border-radius:var(--radius-sm);
   padding:9px 12px;font-size:13px;font-family:var(--font);color:var(--text);
@@ -324,37 +326,54 @@ textarea{min-height:54px}
         <div class="step-title">Юнит-экономика</div>
         <div class="step-sub">Не знаете точное число — нажмите «Не знаю». Мы применим типовые значения и явно пометим их в отчёте.</div>
         <div class="field-wrap">
-          <div class="field-label">Средний чек <span class="field-hint">за период, любая валюта</span></div>
-          <div class="num-row"><input type="number" id="q6a" min="0" step="any" placeholder="990"><button class="btn-unknown" data-t="q6a" data-n="n6a" onclick="toggleUnknown(this)">Не знаю</button></div>
+          <div class="field-label-main">Валюта</div>
+          <div class="opt-grid" id="q6cur" style="grid-template-columns:repeat(4,1fr);margin-bottom:8px">
+            <button class="opt" data-val="$">$ USD</button>
+            <button class="opt" data-val="€">€ EUR</button>
+            <button class="opt" data-val="₽">₽ RUB</button>
+            <button class="opt" data-val="other">Другая</button>
+          </div>
+          <input type="text" id="q6cur_other" placeholder="Например: GEL" style="display:none;margin-bottom:8px">
+        </div>
+        <div class="field-wrap">
+          <div class="field-label">Средний чек</div>
+          <div class="field-desc">Сколько платит один клиент за одну покупку или за месяц подписки?</div>
+          <div class="num-row"><span class="cur-sym" id="cur-a"></span><input type="number" id="q6a" min="0" step="any" placeholder="990"><button class="btn-unknown" data-t="q6a" data-n="n6a" onclick="toggleUnknown(this)">Не знаю</button></div>
           <div class="field-note" id="n6a">Без чека невозможно посчитать payback-период. В отчёте появится предупреждение.</div>
         </div>
         <div class="field-wrap">
-          <div class="field-label">CAC <span class="field-hint">стоимость привлечения одного клиента</span></div>
-          <div class="num-row"><input type="number" id="q6b" min="0" step="any" placeholder="800"><button class="btn-unknown" data-t="q6b" data-n="n6b" onclick="toggleUnknown(this)">Не знаю</button></div>
+          <div class="field-label">CAC — стоимость привлечения клиента</div>
+          <div class="field-desc">Сколько вы тратите на рекламу и маркетинг, чтобы один новый клиент совершил покупку?</div>
+          <div class="num-row"><span class="cur-sym" id="cur-b"></span><input type="number" id="q6b" min="0" step="any" placeholder="800"><button class="btn-unknown" data-t="q6b" data-n="n6b" onclick="toggleUnknown(this)">Не знаю</button></div>
           <div class="field-note" id="n6b">Без CAC невозможен расчёт LTV/CAC ratio — ключевого индикатора экономики.</div>
         </div>
         <div class="field-wrap">
-          <div class="field-label">LTV <span class="field-hint">ценность клиента за всё время</span></div>
-          <div class="num-row"><input type="number" id="q6c" min="0" step="any" placeholder="6000"><button class="btn-unknown" data-t="q6c" data-n="n6c" onclick="toggleUnknown(this)">Не знаю</button></div>
+          <div class="field-label">LTV — пожизненная ценность клиента</div>
+          <div class="field-desc">Сколько денег в сумме приносит один клиент за всё время, пока он пользуется вашим продуктом?</div>
+          <div class="num-row"><span class="cur-sym" id="cur-c"></span><input type="number" id="q6c" min="0" step="any" placeholder="6000"><button class="btn-unknown" data-t="q6c" data-n="n6c" onclick="toggleUnknown(this)">Не знаю</button></div>
           <div class="field-note" id="n6c">Если не знаете — рассчитаем по формуле LTV = чек ÷ churn. Будет помечено как расчётное.</div>
         </div>
         <div class="field-wrap">
-          <div class="field-label">Ежемесячный отток <span class="field-hint">% клиентов в месяц</span></div>
+          <div class="field-label">Ежемесячный отток клиентов</div>
+          <div class="field-desc">Какой процент клиентов перестаёт платить каждый месяц? Например: 5 означает, что из 100 клиентов уходят 5 в месяц.</div>
           <div class="num-row"><input type="number" id="q6d" min="0" max="100" step="0.5" placeholder="5"><button class="btn-unknown" data-t="q6d" data-n="n6d" onclick="toggleUnknown(this)">Не знаю</button></div>
           <div class="field-note" id="n6d">Применим типовой churn для вашей модели и явно пометим как предположение.</div>
         </div>
         <div class="field-wrap">
-          <div class="field-label">Стартовый бюджет <span class="field-hint">на запуск, любая валюта</span></div>
-          <div class="num-row"><input type="number" id="q6e" min="0" step="any" placeholder="1500000"><button class="btn-unknown" data-t="q6e" data-n="n6e" onclick="toggleUnknown(this)">Не знаю</button></div>
+          <div class="field-label">Стартовый бюджет</div>
+          <div class="field-desc">Сколько денег у вас уже есть на запуск и первые месяцы работы?</div>
+          <div class="num-row"><span class="cur-sym" id="cur-e"></span><input type="number" id="q6e" min="0" step="any" placeholder="1500000"><button class="btn-unknown" data-t="q6e" data-n="n6e" onclick="toggleUnknown(this)">Не знаю</button></div>
           <div class="field-note" id="n6e">Без бюджета runway рассчитать невозможно — этот блок в отчёте будет пропущен.</div>
         </div>
         <div class="field-wrap">
-          <div class="field-label">Runway <span class="field-hint">сколько месяцев до нуля на счету?</span></div>
+          <div class="field-label">Runway</div>
+          <div class="field-desc">Сколько месяцев ваш стартап протянет на текущем бюджете, если не будет новых продаж?</div>
           <div class="num-row"><input type="number" id="q6g" min="0" step="1" placeholder="12" value="7"></div>
           <div class="field-note">Сколько месяцев ваш стартап может работать на текущем запасе денег без новых доходов</div>
         </div>
         <div class="field-wrap">
           <div class="field-label-main">Целевая география</div>
+          <div class="field-desc">В каких странах или регионах планируете продавать в первую очередь?</div>
           <input type="text" id="q6f" placeholder="Например: Россия + СНГ">
         </div>
         <div class="nav"><button class="btn-back" onclick="back(6)">← Назад</button><button class="btn-next" id="n6" onclick="next(6)">Далее <i class="ti ti-arrow-right"></i></button></div>
@@ -495,7 +514,7 @@ textarea{min-height:54px}
 
 <script>
 // ===== STATE =====
-const S={q1:null,q2:[],q3a:'',q3b:'',q3c:'',q3d:'',q3e:'',q4:null,q5:[],q6a:'',q6b:'',q6c:'',q6d:'',q6e:'',q6f:'',q6g:'7',q7a:null,q7b:null,q8:null,q9team:null,q9:null};
+const S={q1:null,q2:[],q3a:'',q3b:'',q3c:'',q3d:'',q3e:'',q4:null,q5:[],q6a:'',q6b:'',q6c:'',q6d:'',q6e:'',q6f:'',q6g:'7',currency:'',q7a:null,q7b:null,q8:null,q9team:null,q9:null};
 let lastR=null,lastC=null;
 let CURRENT_STEP=1;
 
@@ -575,6 +594,34 @@ single('q8','q8','n8');
 single('q9team','q9team','n9team');
 single('q9','q9','n9');
 
+// ===== CURRENCY (UNIT ECONOMICS) =====
+function updateCurrencySymbols(){
+  var sym=S.currency||'';
+  ['cur-a','cur-b','cur-c','cur-e'].forEach(function(id){document.getElementById(id).textContent=sym});
+}
+document.getElementById('q6cur').querySelectorAll('.opt').forEach(function(b){
+  b.onclick=function(){
+    document.getElementById('q6cur').querySelectorAll('.opt').forEach(function(x){x.classList.remove('sel')});
+    b.classList.add('sel');
+    var otherInput=document.getElementById('q6cur_other');
+    if(b.dataset.val==='other'){
+      otherInput.style.display='';
+      S.currency=otherInput.value||'';
+    }else{
+      otherInput.style.display='none';
+      otherInput.value='';
+      S.currency=b.dataset.val;
+    }
+    updateCurrencySymbols();
+    saveProgress();
+  };
+});
+document.getElementById('q6cur_other').oninput=function(){
+  S.currency=this.value;
+  updateCurrencySymbols();
+  saveProgress();
+};
+
 // ===== RESTORE PROGRESS FROM CLOUD STORAGE =====
 function applyStateToUI(){
   function markSel(gid,key){
@@ -589,6 +636,24 @@ function applyStateToUI(){
 
   ['q3a','q3b','q3c','q3d','q3e','q6f'].forEach(function(id){if(S[id])document.getElementById(id).value=S[id]});
   ['q6a','q6b','q6c','q6d','q6e','q6g'].forEach(function(id){if(S[id])document.getElementById(id).value=S[id]});
+
+  (function(){
+    var sym=S.currency||'';
+    var known={'$':1,'€':1,'₽':1};
+    var otherInput=document.getElementById('q6cur_other');
+    document.getElementById('q6cur').querySelectorAll('.opt').forEach(function(b){b.classList.remove('sel')});
+    if(sym&&known[sym]){
+      var btn=document.getElementById('q6cur').querySelector('[data-val="'+sym+'"]');
+      if(btn)btn.classList.add('sel');
+      otherInput.style.display='none';
+      otherInput.value='';
+    }else if(sym){
+      document.getElementById('q6cur').querySelector('[data-val="other"]').classList.add('sel');
+      otherInput.style.display='';
+      otherInput.value=sym;
+    }
+    updateCurrencySymbols();
+  })();
 
   if(S.q1)document.getElementById('n1').disabled=false;
   if(S.q2&&S.q2.length)document.getElementById('n2').disabled=false;
