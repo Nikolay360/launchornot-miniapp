@@ -198,7 +198,8 @@ textarea{min-height:54px}
 .btn-restart:hover{color:var(--text2)}
 
 /* HISTORY */
-.history-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:8px}
+.history-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:border-color 0.15s}
+.history-card:hover{border-color:var(--border2)}
 .history-date{font-size:11px;color:var(--text3);margin-bottom:4px}
 .history-verdict{font-size:13px;font-weight:600;margin-bottom:2px}
 .history-desc{font-size:12px;color:var(--text2)}
@@ -257,6 +258,9 @@ textarea{min-height:54px}
           <button class="opt" data-val="hardware"><i class="ti ti-device-laptop opt-icon"></i>Железо / товар</button>
         </div>
         <div class="nav"><div></div><button class="btn-next" id="n1" disabled onclick="next(1)">Далее <i class="ti ti-arrow-right"></i></button></div>
+        <div style="text-align:center;margin-top:1rem">
+          <a href="javascript:void(0)" onclick="showHistoryScreen()" style="font-size:12px;color:var(--text3);text-decoration:underline;cursor:pointer">📋 Моя история</a>
+        </div>
       </div>
 
       <!-- S2 -->
@@ -484,10 +488,16 @@ textarea{min-height:54px}
 
       <!-- HISTORY -->
       <div class="step" id="s14">
-        <div class="step-title">Моя история</div>
-        <div class="step-sub">Последние анализы ваших идей</div>
-        <div id="history-content"></div>
-        <button class="btn-restart" onclick="showStep(12)">← Назад</button>
+        <div id="history-list-view">
+          <div class="step-title">Моя история</div>
+          <div class="step-sub">Последние анализы ваших идей</div>
+          <div id="history-content"></div>
+          <button class="btn-restart" onclick="backFromHistory()">← Назад</button>
+        </div>
+        <div id="history-detail-view" style="display:none">
+          <div id="history-detail-content"></div>
+          <button class="btn-restart" style="margin-top:1rem" onclick="showHistoryList()">← К истории</button>
+        </div>
       </div>
 
       <!-- FEEDBACK -->
@@ -1107,6 +1117,8 @@ function restartQuiz(){clearProgress();location.reload()}
 // ===== HISTORY =====
 var HISTORY_URL=API_BASE+'/history';
 var HISTORY_VERDICT_COLOR={Launch:'var(--green)',Rework:'var(--yellow)',Reject:'var(--red)'};
+var PREV_STEP_BEFORE_HISTORY=1;
+var EMPTY_COMPUTED={ratio:null,grade:'unknown',payback:null,churn:0,churnAssumed:false,ltv:null,ltvAssumed:false,budget:0,runway:null,flags:[]};
 
 function escapeHtml(s){
   return String(s==null?'':s).replace(/[&<>"']/g,function(c){
@@ -1115,8 +1127,28 @@ function escapeHtml(s){
 }
 
 function showHistoryScreen(){
+  var activeEl=document.querySelector('.step.active');
+  if(activeEl&&activeEl.id!=='s14'){
+    var n=parseInt(activeEl.id.replace('s',''),10);
+    if(!isNaN(n))PREV_STEP_BEFORE_HISTORY=n;
+  }
   showStep(14);
+  showHistoryList();
   loadHistory();
+}
+
+function backFromHistory(){
+  showStep(PREV_STEP_BEFORE_HISTORY);
+}
+
+function showHistoryList(){
+  document.getElementById('history-detail-view').style.display='none';
+  document.getElementById('history-list-view').style.display='';
+}
+
+function showHistoryDetailView(){
+  document.getElementById('history-list-view').style.display='none';
+  document.getElementById('history-detail-view').style.display='';
 }
 
 async function loadHistory(){
@@ -1149,12 +1181,31 @@ function renderHistory(items){
     var desc=raw.length>60?raw.slice(0,60)+'…':raw;
     var date=new Date((it.created_at||'').replace(' ','T')+'Z');
     var dateStr=isNaN(date.getTime())?it.created_at:date.toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'});
-    return '<div class="history-card">'+
+    return '<div class="history-card" onclick="openHistoryItem('+it.id+')">'+
       '<div class="history-date">'+escapeHtml(dateStr)+'</div>'+
       '<div class="history-verdict" style="color:'+color+'">'+escapeHtml(it.verdict)+' · '+it.score_total+'/100</div>'+
       '<div class="history-desc">'+escapeHtml(desc)+'</div>'+
     '</div>';
   }).join('');
+}
+
+async function openHistoryItem(id){
+  var el=document.getElementById('history-detail-content');
+  el.innerHTML='<div style="text-align:center;color:var(--text3);padding:2rem 0">Загрузка...</div>';
+  showHistoryDetailView();
+  var userId=getUserId();
+  if(!userId){
+    el.innerHTML='<div style="text-align:center;color:var(--text3);padding:2rem 0">Не удалось определить пользователя</div>';
+    return;
+  }
+  try{
+    var resp=await fetch(API_BASE+'/history/'+encodeURIComponent(id)+'?user_id='+encodeURIComponent(userId));
+    if(!resp.ok)throw new Error('HTTP '+resp.status);
+    var data=await resp.json();
+    el.innerHTML=renderReport(data,EMPTY_COMPUTED,{});
+  }catch(e){
+    el.innerHTML='<div style="text-align:center;color:var(--text3);padding:2rem 0">Не удалось загрузить отчёт</div>';
+  }
 }
 
 // ===== FEEDBACK =====
