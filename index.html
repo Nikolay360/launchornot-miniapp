@@ -196,6 +196,9 @@ textarea{min-height:54px}
 .export-hint{font-size:11px;color:var(--text3);text-align:center;line-height:1.5}
 .btn-restart{margin-top:10px;width:100%;padding:8px;border-radius:var(--radius-sm);border:none;background:transparent;font-size:12px;color:var(--text3);cursor:pointer;font-family:var(--font);transition:color 0.15s}
 .btn-restart:hover{color:var(--text2)}
+.btn-rework{width:100%;justify-content:center;margin-top:0.75rem;background:#FF9500;border:none;border-radius:var(--radius-sm);padding:12px 24px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;font-family:var(--font);transition:opacity 0.15s;display:flex;align-items:center;gap:8px}
+.btn-rework:hover{opacity:0.9}
+.rework-banner{background:rgba(255,149,0,0.1);border:1px solid rgba(255,149,0,0.35);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:1rem;font-size:13px;font-weight:600;color:#FF9500}
 
 /* HISTORY */
 .history-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:border-color 0.15s}
@@ -246,6 +249,7 @@ textarea{min-height:54px}
 
       <!-- S1 -->
       <div class="step active" id="s1">
+        <div id="rework-banner" class="rework-banner" style="display:none">🔧 Вы дорабатываете идею — пройдите квиз заново с учётом изменений</div>
         <div class="step-label">Шаг 1 из 9</div>
         <div class="step-title">Тип бизнес-модели</div>
         <div class="step-sub">Выберите основной формат вашей идеи</div>
@@ -483,7 +487,8 @@ textarea{min-height:54px}
           <div class="export-hint">Отчёт придёт файлом в чат с ботом.</div>
           <button class="btn-next" style="width:100%;justify-content:center;margin-top:0.75rem" onclick="showFeedbackScreen()"><i class="ti ti-message-2"></i> Оставить отзыв</button>
           <button class="btn-next" style="width:100%;justify-content:center;margin-top:0.5rem" onclick="showHistoryScreen()">📋 Моя история</button>
-          <button class="btn-restart" onclick="restartQuiz()">↺ Оценить другую идею</button>
+          <div id="rework-cta"></div>
+          <button class="btn-restart" id="btn-restart-default" onclick="restartQuiz()">↺ Оценить другую идею</button>
         </div>
       </div>
 
@@ -976,6 +981,7 @@ async function runAI(){
       body:JSON.stringify({answers:S,computed:c,prompt:prompt,user_id:getUserId()})
     });
     if(resp.status===402){
+      renderResultCTA(null);
       showNoCreditsScreen(warnings);
       return;
     }
@@ -985,10 +991,12 @@ async function runAI(){
     var html='';
     if(warnings.length>0)html=showSanityWarningsHTML(warnings);
     document.getElementById('result-content').innerHTML=html+renderReport(result,c,S);
+    renderResultCTA(result.verdict);
     showStep(12);
     clearProgress();
   }catch(e){
     lastC=c;
+    renderResultCTA(null);
     showErrorScreen(e.message,warnings,c);
   }
 }
@@ -1005,13 +1013,13 @@ function showSanityWarningsHTML(warnings){
   }).join('');
 }
 
-function showNoCreditsScreen(warnings){
+function showNoCreditsScreen(warnings,customText){
   var html='';
   if(warnings.length>0)html=showSanityWarningsHTML(warnings);
   html+='<div class="verdict-card v-reject" style="margin-top:'+(warnings.length>0?'1rem':'0')+'">'+
     '<div class="verdict-eyebrow">Кредиты закончились</div>'+
     '<div class="verdict-heading" style="font-size:20px"><i class="ti ti-coin-off"></i> Нужны кредиты для анализа</div>'+
-    '<div class="verdict-text">Бесплатный анализ уже использован. Купите ещё, чтобы продолжить оценку идей.</div>'+
+    '<div class="verdict-text">'+(customText||'Бесплатный анализ уже использован. Купите ещё, чтобы продолжить оценку идей.')+'</div>'+
   '</div>';
   html+='<button class="btn-next" style="width:100%;justify-content:center;margin-top:1rem" onclick="createPaymentInvoice(149)"><i class="ti ti-star"></i> Купить 1 анализ за 149 ⭐</button>';
   html+='<button class="btn-next" style="width:100%;justify-content:center;margin-top:0.5rem" onclick="createPaymentInvoice(399)"><i class="ti ti-stars"></i> Пакет 5 анализов за 399 ⭐</button>';
@@ -1121,7 +1129,40 @@ function showExportHint(msg){
   }
 }
 
-function restartQuiz(){clearProgress();location.reload()}
+function restartQuiz(){sessionStorage.removeItem('reworkBanner');clearProgress();location.reload()}
+
+function startReworkFlow(){sessionStorage.setItem('reworkBanner','1');clearProgress();location.reload()}
+
+async function handleReworkClick(){
+  var userId=getUserId();
+  var creditsLeft=0;
+  try{
+    var resp=await fetch(CHECK_CREDITS_URL+'?user_id='+encodeURIComponent(userId));
+    if(resp.ok){var data=await resp.json();creditsLeft=data.credits_remaining||0;}
+  }catch(e){}
+  if(creditsLeft>0){
+    startReworkFlow();
+  }else{
+    showNoCreditsScreen([],'Чтобы проверить доработанную версию идеи — нужен ещё 1 анализ');
+  }
+}
+
+function renderResultCTA(verdict){
+  var cta=document.getElementById('rework-cta');
+  var defaultBtn=document.getElementById('btn-restart-default');
+  if(verdict==='Rework'){
+    cta.innerHTML='<button class="btn-rework" onclick="handleReworkClick()"><i class="ti ti-tool"></i> Исправь слабые места и проверь снова</button>';
+    defaultBtn.style.display='none';
+  }else{
+    cta.innerHTML='';
+    defaultBtn.style.display='';
+  }
+}
+
+if(sessionStorage.getItem('reworkBanner')==='1'){
+  var reworkBannerEl=document.getElementById('rework-banner');
+  if(reworkBannerEl)reworkBannerEl.style.display='block';
+}
 
 // ===== HISTORY =====
 var HISTORY_URL=API_BASE+'/history';
