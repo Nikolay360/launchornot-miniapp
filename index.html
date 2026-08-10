@@ -79,6 +79,11 @@ textarea{min-height:54px}
 .btn-unknown.active{background:var(--accent-bg);color:var(--accent);border-color:var(--accent-border)}
 .field-note{display:none;font-size:11px;color:var(--text3);margin-top:5px;line-height:1.5;padding:6px 10px;background:var(--bg3);border-radius:var(--radius-sm);border-left:2px solid var(--border2)}
 .field-note.show{display:block}
+.bm-note{display:none;font-size:11px;margin-top:5px;line-height:1.5;padding:6px 10px;border-radius:var(--radius-sm);border-left:2px solid transparent}
+.bm-note.show{display:block}
+.bm-note.bm-ok{color:var(--green);background:var(--green-bg);border-left-color:var(--green-border)}
+.bm-note.bm-mild{color:var(--yellow);background:var(--yellow-bg);border-left-color:var(--yellow-border)}
+.bm-note.bm-severe{color:#FF9500;background:#FF950020;border-left-color:#FF9500}
 
 /* NAV */
 .nav{display:flex;justify-content:space-between;align-items:center;margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border)}
@@ -355,12 +360,14 @@ textarea{min-height:54px}
           <div class="field-desc">Сколько платит один клиент за одну покупку или за месяц подписки?</div>
           <div class="num-row"><span class="cur-sym" id="cur-a"></span><input type="number" id="q6a" min="0" step="any" placeholder="990"><button class="btn-unknown" data-t="q6a" data-n="n6a" onclick="toggleUnknown(this)">Не знаю</button></div>
           <div class="field-note" id="n6a">Без чека невозможно посчитать payback-период. В отчёте появится предупреждение.</div>
+          <div class="bm-note" id="bm-q6a"></div>
         </div>
         <div class="field-wrap">
           <div class="field-label">CAC — стоимость привлечения клиента</div>
           <div class="field-desc">Сколько вы тратите на рекламу и маркетинг, чтобы один новый клиент совершил покупку?</div>
           <div class="num-row"><span class="cur-sym" id="cur-b"></span><input type="number" id="q6b" min="0" step="any" placeholder="800"><button class="btn-unknown" data-t="q6b" data-n="n6b" onclick="toggleUnknown(this)">Не знаю</button></div>
           <div class="field-note" id="n6b">Без CAC невозможен расчёт LTV/CAC ratio — ключевого индикатора экономики.</div>
+          <div class="bm-note" id="bm-q6b"></div>
         </div>
         <div class="field-wrap">
           <div class="field-label">LTV — пожизненная ценность клиента</div>
@@ -373,6 +380,7 @@ textarea{min-height:54px}
           <div class="field-desc">Какой процент клиентов перестаёт платить каждый месяц? Например: 5 означает, что из 100 клиентов уходят 5 в месяц.</div>
           <div class="num-row"><input type="number" id="q6d" min="0" max="100" step="0.5" placeholder="5"><button class="btn-unknown" data-t="q6d" data-n="n6d" onclick="toggleUnknown(this)">Не знаю</button></div>
           <div class="field-note" id="n6d">Применим типовой churn для вашей модели и явно пометим как предположение.</div>
+          <div class="bm-note" id="bm-q6d"></div>
         </div>
         <div class="field-wrap">
           <div class="field-label">Стартовый бюджет</div>
@@ -603,6 +611,11 @@ function multi(gid,key,nb){
 }
 single('q1','q1','n1');
 multi('q2','q2','n2');
+document.getElementById('q2').querySelectorAll('.opt').forEach(function(b){
+  b.addEventListener('click',function(){
+    Object.keys(BM_FIELD_MAP).forEach(function(fieldId){renderBenchmarkNote(fieldId)});
+  });
+});
 single('q4','q4','n4');
 multi('q5','q5','n5');
 document.getElementById('q7a').querySelectorAll('.opt').forEach(function(b){
@@ -696,6 +709,7 @@ function applyStateToUI(){
   if(S.q9)document.getElementById('n9').disabled=false;
 
   setPlaceholders();
+  Object.keys(BM_FIELD_MAP).forEach(function(fieldId){renderBenchmarkNote(fieldId)});
 }
 
 function restoreProgress(){
@@ -730,6 +744,87 @@ function toggleUnknown(btn){
   note.classList.toggle('show',on);
   btn.textContent=on?'Указать':'Не знаю';
   saveProgress();
+}
+
+// ===== NICHE BENCHMARKS (USD) =====
+const NICHE_BENCHMARKS={
+  fintech:{label:'Финтех',cac:{min:100,max:600,avg:250},churn:{min:3,max:8,avg:5},check:{min:20,max:150,avg:60}},
+  medtech:{label:'Медтех',cac:{min:150,max:800,avg:350},churn:{min:3,max:7,avg:5},check:{min:30,max:300,avg:120}},
+  food:{label:'Еда / доставка',cac:{min:10,max:40,avg:20},churn:{min:10,max:20,avg:15},check:{min:15,max:40,avg:25}},
+  edtech:{label:'Образование',cac:{min:50,max:300,avg:120},churn:{min:6,max:12,avg:8},check:{min:20,max:200,avg:80}},
+  b2b:{label:'B2B (SaaS)',cac:{min:200,max:1500,avg:600},churn:{min:2,max:5,avg:3.5},check:{min:50,max:500,avg:150}},
+  consumer:{label:'Потребит. (SaaS B2C)',cac:{min:30,max:150,avg:70},churn:{min:5,max:10,avg:7},check:{min:10,max:50,avg:25}},
+  crypto:{label:'Крипто / Web3',cac:{min:20,max:200,avg:70},churn:{min:15,max:30,avg:20},check:{min:10,max:500,avg:100}},
+  ai:{label:'AI / авто',cac:{min:100,max:500,avg:250},churn:{min:4,max:10,avg:6},check:{min:30,max:300,avg:100}}
+};
+
+// ===== BENCHMARK COMPARISON (Q6a/b/d live checks) =====
+var BM_FIELD_MAP={q6a:'check',q6b:'cac',q6d:'churn'};
+var BM_LAST_DEVIATIONS={};
+function getPrimaryNiche(){return (S.q2&&S.q2.length)?S.q2[0]:null;}
+function classifyBenchmark(value,range){
+  if(value>=range.min&&value<=range.max)return 'ok';
+  var edge=value<range.min?range.min:range.max;
+  var span=range.max-range.min||edge||1;
+  var overshoot=Math.abs(value-edge)/span;
+  return overshoot<=0.5?'mild':'severe';
+}
+function renderBenchmarkNote(fieldId){
+  var noteEl=document.getElementById('bm-'+fieldId);
+  if(!noteEl)return;
+  var metric=BM_FIELD_MAP[fieldId];
+  var niche=getPrimaryNiche();
+  var raw=S[fieldId];
+  delete BM_LAST_DEVIATIONS[fieldId];
+  noteEl.className='bm-note';
+  if(!niche||!raw||S.currency&&S.currency!=='$'&&metric!=='churn'){
+    noteEl.textContent='';
+    return;
+  }
+  var bm=NICHE_BENCHMARKS[niche];
+  if(!bm){noteEl.textContent='';return;}
+  var range=bm[metric];
+  var value=num(raw);
+  if(!value){noteEl.textContent='';return;}
+  var unit=metric==='churn'?'%':'$';
+  var rangeStr=unit==='%'?(range.min+'–'+range.max+'%'):('$'+range.min+'–$'+range.max);
+  var sev=classifyBenchmark(value,range);
+  if(sev==='ok'){
+    noteEl.textContent='✓ В пределах нормы для «'+bm.label+'»: '+rangeStr;
+    noteEl.classList.add('bm-ok','show');
+  }else if(sev==='mild'){
+    noteEl.textContent='~ Немного за пределами типичного диапазона '+rangeStr;
+    noteEl.classList.add('bm-mild','show');
+    BM_LAST_DEVIATIONS[fieldId]={field:fieldId,user_value:value,benchmark_range:range,severity:'mild'};
+  }else{
+    noteEl.textContent='⚠️ Для «'+bm.label+'» типичный показатель '+rangeStr+'. Твоё значение сильно отличается — проверь или объясни в описании идеи';
+    noteEl.classList.add('bm-severe','show');
+    BM_LAST_DEVIATIONS[fieldId]={field:fieldId,user_value:value,benchmark_range:range,severity:'severe'};
+  }
+}
+var BM_DEBOUNCE_TIMERS={};
+function scheduleBenchmarkCheck(fieldId){
+  clearTimeout(BM_DEBOUNCE_TIMERS[fieldId]);
+  BM_DEBOUNCE_TIMERS[fieldId]=setTimeout(function(){renderBenchmarkNote(fieldId)},800);
+}
+Object.keys(BM_FIELD_MAP).forEach(function(fieldId){
+  var input=document.getElementById(fieldId);
+  input.addEventListener('input',function(){scheduleBenchmarkCheck(fieldId)});
+  input.addEventListener('blur',function(){clearTimeout(BM_DEBOUNCE_TIMERS[fieldId]);renderBenchmarkNote(fieldId)});
+});
+function buildBenchmarksSummary(){
+  var niche=getPrimaryNiche();
+  if(!niche||!NICHE_BENCHMARKS[niche])return null;
+  var bm=NICHE_BENCHMARKS[niche];
+  Object.keys(BM_FIELD_MAP).forEach(function(fieldId){renderBenchmarkNote(fieldId)});
+  return{
+    niche:niche,
+    niche_label:bm.label,
+    cac_range:bm.cac,
+    churn_range:bm.churn,
+    check_range:bm.check,
+    deviations:Object.keys(BM_LAST_DEVIATIONS).map(function(k){return BM_LAST_DEVIATIONS[k]})
+  };
 }
 
 // ===== PLACEHOLDERS BY MODEL =====
@@ -775,7 +870,8 @@ function compute(s){
   if(s.q1==='unlimited_sub')flags.push('MARGIN_SQUEEZE');
   if(s.q1==='transaction')flags.push('HIGH_CHURN');
   if(s.q2&&['fintech','medtech','food'].some(function(n){return s.q2.indexOf(n)>=0}))flags.push('REGULATORY_BLOCK');
-  return{price,cac,ltv,ltvAssumed,budget,churn,churnAssumed,ratio,grade,payback,runway,flags};
+  var benchmarks=(s===S)?buildBenchmarksSummary():null;
+  return{price,cac,ltv,ltvAssumed,budget,churn,churnAssumed,ratio,grade,payback,runway,flags,benchmarks};
 }
 
 // ===== LABELS =====
@@ -865,11 +961,27 @@ function renderReport(r,c,st){
       '</div>';
   }
 
+  // DATA RELIABILITY
+  var drHTML='';
+  if(r.data_reliability){
+    var dr=r.data_reliability;
+    var drColor=dr.overall==='high'?'var(--green)':dr.overall==='medium'?'var(--yellow)':'var(--red)';
+    var drBg=dr.overall==='high'?'var(--green-bg)':dr.overall==='medium'?'var(--yellow-bg)':'var(--red-bg)';
+    var drBorder=dr.overall==='high'?'var(--green-border)':dr.overall==='medium'?'var(--yellow-border)':'var(--red-border)';
+    var drLabel=dr.overall==='high'?'Высокая надёжность данных':dr.overall==='medium'?'Средняя надёжность данных':'Низкая надёжность данных';
+    drHTML='<div style="background:'+drBg+';border:1px solid '+drBorder+';border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:1rem">'+
+      '<span style="display:inline-block;font-size:12px;font-weight:600;color:'+drColor+';background:'+drBg+';border:1px solid '+drBorder+';border-radius:999px;padding:3px 10px;margin-bottom:6px">'+drLabel+'</span>'+
+      '<div style="font-size:13px;color:var(--text2);line-height:1.5">'+(dr.comment||'')+'</div>'+
+      ((dr.unreliable_fields&&dr.unreliable_fields.length)?'<div style="font-size:12px;color:#FF9500;margin-top:6px">⚠️ Наименее надёжные данные: '+dr.unreliable_fields.join(', ')+'</div>':'')+
+    '</div>';
+  }
+
   return '<div class="verdict-card '+vc+'">'+
     '<div class="verdict-eyebrow">Вердикт · '+r.score_total+'/100</div>'+
     '<div class="verdict-heading"><i class="ti '+vIcon+'"></i> '+vTitle+'</div>'+
     '<div class="verdict-text">'+r.summary+'</div>'+
   '</div>'+
+  drHTML+
   '<div class="section-title">Юнит-экономика — расчётные показатели</div>'+
   '<div class="metrics-block"><div>'+metricsRows+'</div>'+(metricsNote?'<div class="metrics-note">'+metricsNote+'</div>':'')+'</div>'+
   '<div class="section-title">Скоркард</div>'+
@@ -1067,6 +1179,33 @@ function showErrorScreen(errMsg,warnings,c){
   showStep(12);
 }
 
+function buildBenchmarkBlock(s,c){
+  var bm=c.benchmarks;
+  if(!bm)return '\n\nБЕНЧМАРКИ НИШИ: бенчмарк недоступен';
+  var cacVal=num(s.q6b),churnVal=num(s.q6d),checkVal=num(s.q6a);
+  var cacDevStr='';
+  if(cacVal&&bm.cac_range.avg){
+    var cacDev=Math.round((cacVal-bm.cac_range.avg)/bm.cac_range.avg*100);
+    cacDevStr=' (отклонение '+(cacDev>0?'+':'')+cacDev+'%)';
+  }
+  return '\n\nБЕНЧМАРКИ НИШИ ('+bm.niche_label+'):\n'+
+    'CAC норма: $'+bm.cac_range.min+'-$'+bm.cac_range.max+', пользователь указал '+(cacVal?'$'+cacVal:'нет данных')+cacDevStr+'\n'+
+    'Churn норма: '+bm.churn_range.min+'-'+bm.churn_range.max+'%, пользователь указал '+(churnVal?churnVal+'%':'нет данных')+'\n'+
+    'Чек норма: $'+bm.check_range.min+'-$'+bm.check_range.max+', пользователь указал '+(checkVal?'$'+checkVal:'нет данных');
+}
+function buildDataReliabilityBlock(s,c){
+  var labels={q6a:'Чек',q6b:'CAC',q6c:'LTV',q6d:'Churn',q6e:'Бюджет'};
+  var severe=((c.benchmarks&&c.benchmarks.deviations)||[]).filter(function(d){return d.severity==='severe'}).map(function(d){return labels[d.field]||d.field});
+  var unknownFields=Object.keys(labels).filter(function(id){return !s[id]&&severe.indexOf(labels[id])<0}).map(function(id){return labels[id]});
+  var rest=Object.keys(labels).filter(function(id){
+    var lbl=labels[id];
+    return severe.indexOf(lbl)<0&&unknownFields.indexOf(lbl)<0;
+  }).map(function(id){return labels[id]});
+  return '\n\nНАДЁЖНОСТЬ ДАННЫХ:\n'+
+    '- сомнительные (сильное отклонение от бенчмарка): '+(severe.join(', ')||'нет')+'\n'+
+    '- расчётные (заполнены через "Не знаю"): '+(unknownFields.join(', ')||'нет')+'\n'+
+    '- остальные — введены пользователем: '+(rest.join(', ')||'нет');
+}
 function buildPrompt(s,c){
   var fl=c.flags.map(function(f){return '- '+STRUCT_LABEL[f]}).join('\n')||'не выявлено';
   return 'Дай жёсткую честную оценку. Без дипломатии и смягчений.\n'+
@@ -1087,6 +1226,8 @@ function buildPrompt(s,c){
   '\nChurn: '+c.churn+'%'+(c.churnAssumed?' (типовой для модели)':'')+
   '\nLTV: '+(c.ltv||'нет данных')+(c.ltvAssumed?' (расчётный: чек/churn)':'')+
   '\nRunway: '+(c.runway?c.runway+' мес.':'нет данных о бюджете')+
+  buildBenchmarkBlock(s,c)+
+  buildDataReliabilityBlock(s,c)+
   '\n\nСТРУКТУРНЫЕ РИСКИ АВТОДЕТЕКТ:\n'+fl+
   '\n\nАУДИТ МОНЕТИЗАЦИИ: '+
   'Если выбранная модель монетизации ('+s.q4+') не оптимальна — скажи прямо, '+
