@@ -913,7 +913,7 @@ var GRADE_LABEL={critical:'Критично',poor:'Слабо',ok:'Нормал�
 var GRADE_CSS={critical:'grade-poor',poor:'grade-poor',ok:'grade-ok',good:'grade-good',unknown:'grade-unknown'};
 var SCORE_NAMES={market:'Рынок',model:'Модель',competition:'Конкуренция',economics:'Экономика',execution:'Исполнение',regulation:'Регуляторика'};
 var CHAN_COLOR={Высокий:'var(--green)',Средний:'var(--yellow)',Низкий:'var(--red)'};
-var CHANNEL_KEYS_TO_LABELS={partnerships:'Партнёрства',social:'Соцсети',cold_outreach:'Холодные рассылки',content:'Контент',paid_ads:'Платная реклама',referral:'Рефералы',direct_sales:'Прямые продажи',community:'Сообщества'};
+var CHANNEL_KEY_LABELS={partnerships:'Партнёрства',social:'Соцсети',cold_outreach:'Холодные рассылки',content:'Контент',paid_ads:'Платная реклама',referral:'Рефералы',direct_sales:'Прямые продажи',community:'Сообщества',organic:'Органика',seo:'SEO',email:'Email',events:'События'};
 var STRUCT_LABEL={INTERMEDIARY_DILEMMA:'Маркетплейс: риск ухода сторон в прямые сделки',MARGIN_SQUEEZE:'Безлимитная подписка: риск отрицательной маржи',HIGH_CHURN:'Транзакционная: типичный churn 25–35% в месяц',REGULATORY_BLOCK:'Регулируемая ниша: вероятны лицензии и сертификации'};
 
 // ===== RENDER REPORT =====
@@ -961,8 +961,7 @@ function renderReport(r,c,st){
 
   // CHANNELS
   var chanHTML=r.channels.map(function(ch){
-    var label=CHANNEL_KEYS_TO_LABELS[ch.key]||ch.key;
-    var chanName=ch.name?(ch.name+' ('+label+')'):label;
+    var chanName=CHANNEL_KEY_LABELS[ch.key]||ch.name;
     return '<div class="channel-item"><span class="channel-name">'+chanName+'</span><div class="channel-right"><div class="channel-pot" style="color:'+(CHAN_COLOR[ch.potential]||'var(--text2)')+'">'+ch.potential+'</div><div class="channel-note">'+(ch.note||'')+'</div></div></div>';
   }).join('');
 
