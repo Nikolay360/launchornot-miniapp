@@ -510,7 +510,11 @@ textarea{min-height:54px}
         </div>
         <div id="history-detail-view" style="display:none">
           <div id="history-detail-content"></div>
-          <button class="btn-restart" style="margin-top:1rem" onclick="showHistoryList()">← К истории</button>
+          <div style="display:flex;gap:0.5rem;margin-top:1rem">
+            <button class="btn-restart" style="flex:1" onclick="showHistoryList()">← К истории</button>
+            <button class="btn-restart" id="history-send-report-btn" style="flex:1;opacity:0.75" onclick="sendHistoryReportToChat()"><i class="ti ti-download"></i> Отправить в чат</button>
+          </div>
+          <div id="history-export-hint" class="export-hint" style="margin-top:0.5rem"></div>
         </div>
       </div>
 
@@ -1240,19 +1244,19 @@ function buildPrompt(s,c){
 // ===== EXPORT =====
 var SEND_REPORT_URL=API_BASE+'/send-report';
 
-async function doExport(){
-  if(!lastR||!lastC)return;
-  var btn=document.querySelector('.btn-export');
+async function sendReportToChat(analysisId,btn,hintEl){
   var originalText=btn?btn.innerHTML:'';
   if(btn){btn.disabled=true;btn.innerHTML='<i class="ti ti-loader"></i> Отправка...';}
   try{
+    var body={user_id:getUserId()};
+    if(analysisId!=null)body.analysis_id=analysisId;
     var resp=await fetch(SEND_REPORT_URL,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({user_id:getUserId()})
+      body:JSON.stringify(body)
     });
     if(!resp.ok)throw new Error('HTTP '+resp.status);
-    showExportHint('Отчёт отправлен в чат с ботом ✅');
+    showExportHint('Отчёт отправлен в чат с ботом ✅',hintEl);
   }catch(e){
     if(TG)TG.showAlert('Не удалось отправить отчёт. Попробуйте ещё раз.');
   }finally{
@@ -1260,8 +1264,18 @@ async function doExport(){
   }
 }
 
-function showExportHint(msg){
-  var hintEl=document.querySelector('.export-hint');
+async function doExport(){
+  if(!lastR||!lastC)return;
+  await sendReportToChat(null,document.querySelector('.btn-export'),document.querySelector('.export-hint'));
+}
+
+async function sendHistoryReportToChat(){
+  if(currentHistoryId==null)return;
+  await sendReportToChat(currentHistoryId,document.getElementById('history-send-report-btn'),document.getElementById('history-export-hint'));
+}
+
+function showExportHint(msg,hintEl){
+  hintEl=hintEl||document.querySelector('.export-hint');
   if(hintEl){
     var original=hintEl.textContent;
     hintEl.textContent=msg;
@@ -1309,6 +1323,7 @@ if(sessionStorage.getItem('reworkBanner')==='1'){
 var HISTORY_URL=API_BASE+'/history';
 var HISTORY_VERDICT_COLOR={Launch:'var(--green)',Rework:'var(--yellow)',Reject:'var(--red)'};
 var PREV_STEP_BEFORE_HISTORY=1;
+var currentHistoryId=null;
 var EMPTY_COMPUTED={ratio:null,grade:'unknown',payback:null,churn:0,churnAssumed:false,ltv:null,ltvAssumed:false,budget:0,runway:null,flags:[]};
 
 function escapeHtml(s){
@@ -1381,6 +1396,7 @@ function renderHistory(items){
 }
 
 async function openHistoryItem(id){
+  currentHistoryId=id;
   var el=document.getElementById('history-detail-content');
   el.innerHTML='<div style="text-align:center;color:var(--text3);padding:2rem 0">Загрузка...</div>';
   showHistoryDetailView();
