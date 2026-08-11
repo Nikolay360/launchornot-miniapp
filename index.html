@@ -875,7 +875,37 @@ function compute(s){
   if(s.q1==='transaction')flags.push('HIGH_CHURN');
   if(s.q2&&['fintech','medtech','food'].some(function(n){return s.q2.indexOf(n)>=0}))flags.push('REGULATORY_BLOCK');
   var benchmarks=(s===S)?buildBenchmarksSummary():null;
-  return{price,cac,ltv,ltvAssumed,budget,churn,churnAssumed,ratio,grade,payback,runway,flags,benchmarks};
+  var burn=(runway&&runway>0)?Math.round(budget/runway):0;
+
+  var cacObj=cac>0
+    ?{min:cac,max:cac,avg:cac,source:'user'}
+    :(benchmarks?{min:benchmarks.cac_range.min,max:benchmarks.cac_range.max,avg:benchmarks.cac_range.avg,source:'benchmark'}:{min:0,max:0,avg:0,source:'benchmark'});
+  var checkObj=price>0
+    ?{min:price,max:price,avg:price,source:'user'}
+    :(benchmarks?{min:benchmarks.check_range.min,max:benchmarks.check_range.max,avg:benchmarks.check_range.avg,source:'benchmark'}:{min:0,max:0,avg:0,source:'benchmark'});
+
+  var customersBear=cacObj.max>0?Math.max(0,Math.round(burn/cacObj.max)):0;
+  var customersBase=cacObj.avg>0?Math.max(0,Math.round(burn/cacObj.avg)):0;
+  var customersBull=cacObj.min>0?Math.max(0,Math.round(burn/cacObj.min)):0;
+
+  var calculatedNumbers={
+    cac:cacObj,
+    check:checkObj,
+    ltv:{value:ltv||0,source:ltvAssumed?'calculated':'user'},
+    payback_months:payback||0,
+    churn_monthly:churn||0,
+    runway_months:runway||0,
+    break_even_customers:checkObj.avg>0?Math.ceil(burn/checkObj.avg):0,
+    monthly_marketing_budget:Math.round(cacObj.avg*customersBase),
+    recommended_ltv_cac_ratio:3.0,
+    forecast:{
+      bear:{arr:Math.round(customersBear*12*checkObj.min),customers:customersBear,source:'benchmark'},
+      base:{arr:Math.round(customersBase*12*checkObj.avg),customers:customersBase,source:'blended'},
+      bull:{arr:Math.round(customersBull*12*checkObj.max),customers:customersBull,source:'user'}
+    }
+  };
+
+  return{price,cac,ltv,ltvAssumed,budget,churn,churnAssumed,ratio,grade,payback,runway,flags,benchmarks,burn,calculatedNumbers};
 }
 
 // ===== LABELS =====
@@ -1231,6 +1261,22 @@ function buildPrompt(s,c){
   '\nLTV: '+(c.ltv||'нет данных')+(c.ltvAssumed?' (расчётный: чек/churn)':'')+
   '\nRunway: '+(c.runway?c.runway+' мес.':'нет данных о бюджете')+
   buildBenchmarkBlock(s,c)+
+  '\n\nРАСЧЁТНЫЕ ЗНАЧЕНИЯ (один источник истины):\n'+
+  'CAC: $'+c.calculatedNumbers.cac.min+'-$'+c.calculatedNumbers.cac.max+
+  ' (средний $'+c.calculatedNumbers.cac.avg+', источник: '+c.calculatedNumbers.cac.source+')\n'+
+  'Средний чек: $'+c.calculatedNumbers.check.min+'-$'+c.calculatedNumbers.check.max+'\n'+
+  'LTV: $'+c.calculatedNumbers.ltv.value+'\n'+
+  'Payback: '+c.calculatedNumbers.payback_months+' мес\n'+
+  'Чистый monthly burn: $'+c.burn+'\n'+
+  'Runway: '+c.calculatedNumbers.runway_months+' мес\n'+
+  'Break-even (при CAC '+(Math.round(c.cac))+', чек '+Math.round(c.price)+'): '+
+    c.calculatedNumbers.break_even_customers+' клиентов\n'+
+  'Рекомендуемый маркетинг-бюджет/мес: $'+c.calculatedNumbers.monthly_marketing_budget+'\n'+
+  'Целевой LTV/CAC ratio: '+c.calculatedNumbers.recommended_ltv_cac_ratio+'x\n'+
+  '\nФОРКАСТ (12 месяцев):\n'+
+  'Bear (benchmark): $'+c.calculatedNumbers.forecast.bear.arr+'/год\n'+
+  'Base (blended): $'+c.calculatedNumbers.forecast.base.arr+'/год\n'+
+  'Bull (optimistic): $'+c.calculatedNumbers.forecast.bull.arr+'/год'+
   buildDataReliabilityBlock(s,c)+
   '\n\nСТРУКТУРНЫЕ РИСКИ АВТОДЕТЕКТ:\n'+fl+
   '\n\nАУДИТ МОНЕТИЗАЦИИ: '+
