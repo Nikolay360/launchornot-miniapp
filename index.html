@@ -310,7 +310,9 @@ textarea{min-height:54px}
           <button class="opt" data-val="consumer"><i class="ti ti-users opt-icon"></i>Потребит.</button>
           <button class="opt" data-val="crypto"><i class="ti ti-currency-bitcoin opt-icon"></i>Крипто / Web3</button>
           <button class="opt" data-val="ai"><i class="ti ti-robot opt-icon"></i>AI / авто</button>
+          <button class="opt" data-val="other"><i class="ti ti-dots opt-icon"></i>Другое</button>
         </div>
+        <input type="text" id="q2_other" placeholder="Уточни какая" style="display:none;margin-top:8px">
         <div class="nav"><button class="btn-back" onclick="back(4)">← Назад</button><button class="btn-next" id="n2" disabled onclick="next(4)">Далее <i class="ti ti-arrow-right"></i></button></div>
       </div>
 
@@ -326,7 +328,9 @@ textarea{min-height:54px}
           <button class="opt" data-val="commission"><i class="ti ti-percentage opt-icon"></i>Комиссия</button>
           <button class="opt" data-val="b2b_license"><i class="ti ti-license opt-icon"></i>B2B-лицензия</button>
           <button class="opt" data-val="usage_based"><i class="ti ti-meter opt-icon"></i>По использованию</button>
+          <button class="opt" data-val="other"><i class="ti ti-dots opt-icon"></i>Другое</button>
         </div>
+        <input type="text" id="q4_other" placeholder="Уточни что за модель" style="display:none;margin-top:8px">
         <div class="nav"><button class="btn-back" onclick="back(5)">← Назад</button><button class="btn-next" id="n4" disabled onclick="next(5)">Далее <i class="ti ti-arrow-right"></i></button></div>
       </div>
 
@@ -344,7 +348,9 @@ textarea{min-height:54px}
           <button class="opt" data-val="cold_outreach"><i class="ti ti-mail opt-icon"></i>Холодные продажи</button>
           <button class="opt" data-val="community"><i class="ti ti-messages opt-icon"></i>Комьюнити</button>
           <button class="opt" data-val="influencer"><i class="ti ti-star opt-icon"></i>Инфлюенсеры</button>
+          <button class="opt" data-val="other"><i class="ti ti-dots opt-icon"></i>Другое</button>
         </div>
+        <input type="text" id="q5_other" placeholder="Уточни что за канал" style="display:none;margin-top:8px">
         <div class="nav"><button class="btn-back" onclick="back(6)">← Назад</button><button class="btn-next" id="n5" disabled onclick="next(6)">Далее <i class="ti ti-arrow-right"></i></button></div>
       </div>
 
@@ -566,7 +572,7 @@ textarea{min-height:54px}
 
 <script>
 // ===== STATE =====
-const S={q1:null,q2:[],q3a:'',q3b:'',q3c:'',q3d:'',q3e:'',q4:null,q5:[],q6a:'',q6b:'',q6c:'',q6d:'',q6e:'',q6f:'',q6g:'7',currency:'',q7a:null,q7b:null,q8:null,q9team:null,q9:null};
+const S={q1:null,q2:[],q2_other:'',q3a:'',q3b:'',q3c:'',q3d:'',q3e:'',q4:null,q4_other:'',q5:[],q5_other:'',q6a:'',q6b:'',q6c:'',q6d:'',q6e:'',q6f:'',q6g:'7',currency:'',q7a:null,q7b:null,q8:null,q9team:null,q9:null};
 let lastR=null,lastC=null;
 let CURRENT_STEP=1;
 
@@ -631,6 +637,30 @@ document.getElementById('q2').querySelectorAll('.opt').forEach(function(b){
 });
 single('q4','q4','n4');
 multi('q5','q5','n5');
+function wireOtherToggle(gid,otherId,stateKey){
+  var otherInput=document.getElementById(otherId);
+  document.getElementById(gid).querySelectorAll('.opt').forEach(function(b){
+    b.addEventListener('click',function(){
+      var otherBtn=document.getElementById(gid).querySelector('[data-val="other"]');
+      var isOtherSelected=otherBtn&&otherBtn.classList.contains('sel');
+      if(isOtherSelected){
+        otherInput.style.display='';
+      }else{
+        otherInput.style.display='none';
+        otherInput.value='';
+        S[stateKey]='';
+      }
+      saveProgress();
+    });
+  });
+  otherInput.oninput=function(){
+    S[stateKey]=this.value;
+    saveProgress();
+  };
+}
+wireOtherToggle('q2','q2_other','q2_other');
+wireOtherToggle('q4','q4_other','q4_other');
+wireOtherToggle('q5','q5_other','q5_other');
 document.getElementById('q7a').querySelectorAll('.opt').forEach(function(b){
   b.onclick=function(){
     document.getElementById('q7a').querySelectorAll('.opt').forEach(function(x){x.classList.remove('sel')});
@@ -693,6 +723,20 @@ function applyStateToUI(){
 
   ['q3a','q3b','q3c','q3d','q3e','q6f'].forEach(function(id){if(S[id])document.getElementById(id).value=S[id]});
   ['q6a','q6b','q6c','q6d','q6e','q6g'].forEach(function(id){if(S[id])document.getElementById(id).value=S[id]});
+
+  [['q2','q2_other'],['q4','q4_other'],['q5','q5_other']].forEach(function(pair){
+    var gid=pair[0],stateKey=pair[1];
+    var otherInput=document.getElementById(stateKey);
+    var otherBtn=document.getElementById(gid).querySelector('[data-val="other"]');
+    var isOtherSelected=otherBtn&&otherBtn.classList.contains('sel');
+    if(isOtherSelected){
+      otherInput.style.display='';
+      otherInput.value=S[stateKey]||'';
+    }else{
+      otherInput.style.display='none';
+      otherInput.value='';
+    }
+  });
 
   (function(){
     var sym=S.currency||'';
@@ -1263,15 +1307,18 @@ function buildDataReliabilityBlock(s,c){
 }
 function buildPrompt(s,c){
   var fl=c.flags.map(function(f){return '- '+STRUCT_LABEL[f]}).join('\n')||'не выявлено';
+  var q2Labels=s.q2.map(function(v){return v==='other'?(s.q2_other||'не уточнено'):v});
+  var q4Label=s.q4==='other'?(s.q4_other||'не уточнено'):s.q4;
+  var q5Labels=s.q5.map(function(v){return v==='other'?(s.q5_other||'не уточнено'):v});
   return 'Дай жёсткую честную оценку. Без дипломатии и смягчений.\n'+
   'Для каждой проблемы — конкретное решение с цифрой и альтернативой.\n'+
   'Для каждого вывода — сравнение с отраслевым бенчмарком.\n'+
   'Если бюджет мал — скажи сколько нужно. Если канал плохой — назови лучший.\n'+
   'Числа уже посчитаны — используй как факты.\n\n'+
-  'ИДЕЯ:\nМодель: '+s.q1+'\nНиша: '+(s.q2.join(', ')||'не указана')+
+  'ИДЕЯ:\nМодель: '+s.q1+'\nНиша: '+(q2Labels.join(', ')||'не указана')+
   '\nЧто делает: '+(s.q3a||'не указано')+'\nБоль: '+(s.q3b||'не указано')+'\nПочему сейчас: '+(s.q3c||'не указано')+
   '\nАудитория: '+(s.q3d||'не указана')+'\nКонкурент: '+(s.q3e||'не указан')+
-  '\nМонетизация: '+s.q4+'\nКаналы: '+(s.q5.join(', ')||'не указаны')+
+  '\nМонетизация: '+q4Label+'\nКаналы: '+(q5Labels.join(', ')||'не указаны')+
   '\nГео: '+(s.q6f||'не указана')+'\nГиганты: '+s.q7a+'\nУТП: '+s.q7b+
   '\nОпыт команды: '+s.q8+
   '\nРазмер команды: '+(s.q9team==='solo'?'Один основатель':s.q9team==='duo'?'2 человека':s.q9team==='small'?'3–5 человек':'6–15 человек')+
@@ -1301,9 +1348,9 @@ function buildPrompt(s,c){
   buildDataReliabilityBlock(s,c)+
   '\n\nСТРУКТУРНЫЕ РИСКИ АВТОДЕТЕКТ:\n'+fl+
   '\n\nАУДИТ МОНЕТИЗАЦИИ: '+
-  'Если выбранная модель монетизации ('+s.q4+') не оптимальна — скажи прямо, '+
+  'Если выбранная модель монетизации ('+q4Label+') не оптимальна — скажи прямо, '+
   'объясни на что менять и как это повлияет на выручку конкретно. '+
-  'monetization_audit: {"chosen":"'+s.q4+'","verdict":"optimal|suboptimal",'+
+  'monetization_audit: {"chosen":"'+q4Label+'","verdict":"optimal|suboptimal",'+
   '"recommended":"название или null","reason":"конкретное обоснование, если можно — с цифрами"}.'+
   '\n\nВерни ТОЛЬКО JSON.';
 }
