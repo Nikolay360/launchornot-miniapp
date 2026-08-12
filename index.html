@@ -246,16 +246,34 @@ textarea{min-height:54px}
     <div id="quiz-inner">
       <div class="progress-wrap">
         <div class="progress-meta">
-          <span id="step-counter">Шаг 1 из 9</span>
-          <span id="step-pct">11%</span>
+          <span id="step-counter">Шаг 1 из 10</span>
+          <span id="step-pct">10%</span>
         </div>
-        <div class="progress-bar"><div class="progress-fill" id="prog" style="width:11%"></div></div>
+        <div class="progress-bar"><div class="progress-fill" id="prog" style="width:10%"></div></div>
       </div>
 
       <!-- S1 -->
       <div class="step active" id="s1">
         <div id="rework-banner" class="rework-banner" style="display:none">🔧 Вы дорабатываете идею — пройдите квиз заново с учётом изменений</div>
-        <div class="step-label">Шаг 1 из 9</div>
+        <div class="step-label">Шаг 1 из 10</div>
+        <div class="step-title">Идея и контекст</div>
+        <div class="step-sub">Три коротких ответа дают намного точнее анализ, чем один абзац</div>
+        <div class="field-wrap"><div class="field-label-main">Что делает продукт?</div><textarea id="q3a" rows="2" placeholder="Например: AI-сервис, который за минуту генерирует договоры и счета для фрилансеров"></textarea></div>
+        <div class="field-wrap"><div class="field-label-main">Какую боль решает?</div><textarea id="q3b" rows="2" placeholder="Например: фрилансеры тратят 3–5 часов в неделю на административные задачи"></textarea></div>
+        <div class="field-wrap"><div class="field-label-main">Почему именно сейчас?</div><textarea id="q3c" rows="2" placeholder="Например: AI-модели стали точными и дешёвыми для юридических текстов"></textarea></div>
+        <div class="row2">
+          <div class="field-wrap"><div class="field-label-main">Целевая аудитория</div><input type="text" id="q3d" placeholder="Кто ваш клиент?"></div>
+          <div class="field-wrap"><div class="field-label-main">Ключевой конкурент</div><input type="text" id="q3e" placeholder="Главная альтернатива?"></div>
+        </div>
+        <div class="nav"><div></div><button class="btn-next" id="n3" onclick="next(1)">Далее <i class="ti ti-arrow-right"></i></button></div>
+        <div style="text-align:center;margin-top:1rem">
+          <a href="javascript:void(0)" onclick="showHistoryScreen()" style="font-size:12px;color:var(--text3);text-decoration:underline;cursor:pointer">📋 Моя история</a>
+        </div>
+      </div>
+
+      <!-- S2 -->
+      <div class="step" id="s2">
+        <div class="step-label">Шаг 2 из 10</div>
         <div class="step-title">Тип бизнес-модели</div>
         <div class="step-sub">Выберите основной формат вашей идеи</div>
         <div class="opt-grid" id="q1">
@@ -266,15 +284,12 @@ textarea{min-height:54px}
           <button class="opt" data-val="content"><i class="ti ti-news opt-icon"></i>Медиа / контент</button>
           <button class="opt" data-val="hardware"><i class="ti ti-device-laptop opt-icon"></i>Железо / товар</button>
         </div>
-        <div class="nav"><div></div><button class="btn-next" id="n1" disabled onclick="next(1)">Далее <i class="ti ti-arrow-right"></i></button></div>
-        <div style="text-align:center;margin-top:1rem">
-          <a href="javascript:void(0)" onclick="showHistoryScreen()" style="font-size:12px;color:var(--text3);text-decoration:underline;cursor:pointer">📋 Моя история</a>
-        </div>
+        <div class="nav"><button class="btn-back" onclick="back(2)">← Назад</button><button class="btn-next" id="n1" disabled onclick="next(2)">Далее <i class="ti ti-arrow-right"></i></button></div>
       </div>
 
-      <!-- S2 -->
-      <div class="step" id="s2">
-        <div class="step-label">Шаг 2 из 9</div>
+      <!-- S3 -->
+      <div class="step" id="s3">
+        <div class="step-label">Шаг 3 из 10</div>
         <div class="step-title">Ниша</div>
         <div class="step-sub">Выберите все подходящие категории</div>
         <div class="opt-grid" id="q2">
@@ -287,22 +302,7 @@ textarea{min-height:54px}
           <button class="opt" data-val="crypto"><i class="ti ti-currency-bitcoin opt-icon"></i>Крипто / Web3</button>
           <button class="opt" data-val="ai"><i class="ti ti-robot opt-icon"></i>AI / авто</button>
         </div>
-        <div class="nav"><button class="btn-back" onclick="back(2)">← Назад</button><button class="btn-next" id="n2" disabled onclick="next(2)">Далее <i class="ti ti-arrow-right"></i></button></div>
-      </div>
-
-      <!-- S3 -->
-      <div class="step" id="s3">
-        <div class="step-label">Шаг 3 из 9</div>
-        <div class="step-title">Идея и контекст</div>
-        <div class="step-sub">Три коротких ответа дают намного точнее анализ, чем один абзац</div>
-        <div class="field-wrap"><div class="field-label-main">Что делает продукт?</div><textarea id="q3a" rows="2" placeholder="Например: AI-сервис, который за минуту генерирует договоры и счета для фрилансеров"></textarea></div>
-        <div class="field-wrap"><div class="field-label-main">Какую боль решает?</div><textarea id="q3b" rows="2" placeholder="Например: фрилансеры тратят 3–5 часов в неделю на административные задачи"></textarea></div>
-        <div class="field-wrap"><div class="field-label-main">Почему именно сейчас?</div><textarea id="q3c" rows="2" placeholder="Например: AI-модели стали точными и дешёвыми для юридических текстов"></textarea></div>
-        <div class="row2">
-          <div class="field-wrap"><div class="field-label-main">Целевая аудитория</div><input type="text" id="q3d" placeholder="Кто ваш клиент?"></div>
-          <div class="field-wrap"><div class="field-label-main">Ключевой конкурент</div><input type="text" id="q3e" placeholder="Главная альтернатива?"></div>
-        </div>
-        <div class="nav"><button class="btn-back" onclick="back(3)">← Назад</button><button class="btn-next" id="n3" onclick="next(3)">Далее <i class="ti ti-arrow-right"></i></button></div>
+        <div class="nav"><button class="btn-back" onclick="back(3)">← Назад</button><button class="btn-next" id="n2" disabled onclick="next(3)">Далее <i class="ti ti-arrow-right"></i></button></div>
       </div>
 
       <!-- S4 -->
