@@ -246,16 +246,16 @@ textarea{min-height:54px}
     <div id="quiz-inner">
       <div class="progress-wrap">
         <div class="progress-meta">
-          <span id="step-counter">Шаг 1 из 10</span>
-          <span id="step-pct">10%</span>
+          <span id="step-counter">Шаг 1 из 11</span>
+          <span id="step-pct">9%</span>
         </div>
-        <div class="progress-bar"><div class="progress-fill" id="prog" style="width:10%"></div></div>
+        <div class="progress-bar"><div class="progress-fill" id="prog" style="width:9%"></div></div>
       </div>
 
       <!-- S1 -->
       <div class="step active" id="s1">
         <div id="rework-banner" class="rework-banner" style="display:none">🔧 Вы дорабатываете идею — пройдите квиз заново с учётом изменений</div>
-        <div class="step-label">Шаг 1 из 10</div>
+        <div class="step-label">Шаг 1 из 11</div>
         <div class="step-title">Идея и контекст</div>
         <div class="step-sub">Три коротких ответа дают намного точнее анализ, чем один абзац</div>
         <div class="field-wrap"><div class="field-label-main">Что делает продукт?</div><textarea id="q3a" rows="2" placeholder="Например: AI-сервис, который за минуту генерирует договоры и счета для фрилансеров"></textarea></div>
@@ -271,9 +271,18 @@ textarea{min-height:54px}
         </div>
       </div>
 
-      <!-- S2 -->
+      <!-- S2 — Подтверждение идеи -->
       <div class="step" id="s2">
-        <div class="step-label">Шаг 2 из 10</div>
+        <div class="step-label">Шаг 2 из 11</div>
+        <div class="step-title">Вот как я понял твою идею</div>
+        <div class="step-sub">Проверь, что всё верно, прежде чем идти дальше</div>
+        <div id="idea-recap" style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;font-size:14px;line-height:1.6;color:var(--text)"></div>
+        <div class="nav"><button class="btn-back" onclick="back(2)">← Уточнить</button><button class="btn-next" onclick="next(2)">Всё верно, продолжить <i class="ti ti-arrow-right"></i></button></div>
+      </div>
+
+      <!-- S3 -->
+      <div class="step" id="s3">
+        <div class="step-label">Шаг 3 из 11</div>
         <div class="step-title">Тип бизнес-модели</div>
         <div class="step-sub">Выберите основной формат вашей идеи</div>
         <div class="opt-grid" id="q1">
@@ -284,12 +293,12 @@ textarea{min-height:54px}
           <button class="opt" data-val="content"><i class="ti ti-news opt-icon"></i>Медиа / контент</button>
           <button class="opt" data-val="hardware"><i class="ti ti-device-laptop opt-icon"></i>Железо / товар</button>
         </div>
-        <div class="nav"><button class="btn-back" onclick="back(2)">← Назад</button><button class="btn-next" id="n1" disabled onclick="next(2)">Далее <i class="ti ti-arrow-right"></i></button></div>
+        <div class="nav"><button class="btn-back" onclick="back(3)">← Назад</button><button class="btn-next" id="n1" disabled onclick="next(3)">Далее <i class="ti ti-arrow-right"></i></button></div>
       </div>
 
-      <!-- S3 -->
-      <div class="step" id="s3">
-        <div class="step-label">Шаг 3 из 10</div>
+      <!-- S4 -->
+      <div class="step" id="s4">
+        <div class="step-label">Шаг 4 из 11</div>
         <div class="step-title">Ниша</div>
         <div class="step-sub">Выберите все подходящие категории</div>
         <div class="opt-grid" id="q2">
@@ -302,12 +311,12 @@ textarea{min-height:54px}
           <button class="opt" data-val="crypto"><i class="ti ti-currency-bitcoin opt-icon"></i>Крипто / Web3</button>
           <button class="opt" data-val="ai"><i class="ti ti-robot opt-icon"></i>AI / авто</button>
         </div>
-        <div class="nav"><button class="btn-back" onclick="back(3)">← Назад</button><button class="btn-next" id="n2" disabled onclick="next(3)">Далее <i class="ti ti-arrow-right"></i></button></div>
+        <div class="nav"><button class="btn-back" onclick="back(4)">← Назад</button><button class="btn-next" id="n2" disabled onclick="next(4)">Далее <i class="ti ti-arrow-right"></i></button></div>
       </div>
 
-      <!-- S4 -->
-      <div class="step" id="s4">
-        <div class="step-label">Шаг 4 из 9</div>
+      <!-- S5 -->
+      <div class="step" id="s5">
+        <div class="step-label">Шаг 5 из 11</div>
         <div class="step-title">Монетизация</div>
         <div class="step-sub">Как продукт будет зарабатывать?</div>
         <div class="opt-grid" id="q4">
@@ -318,12 +327,12 @@ textarea{min-height:54px}
           <button class="opt" data-val="b2b_license"><i class="ti ti-license opt-icon"></i>B2B-лицензия</button>
           <button class="opt" data-val="usage_based"><i class="ti ti-meter opt-icon"></i>По использованию</button>
         </div>
-        <div class="nav"><button class="btn-back" onclick="back(4)">← Назад</button><button class="btn-next" id="n4" disabled onclick="next(4)">Далее <i class="ti ti-arrow-right"></i></button></div>
+        <div class="nav"><button class="btn-back" onclick="back(5)">← Назад</button><button class="btn-next" id="n4" disabled onclick="next(5)">Далее <i class="ti ti-arrow-right"></i></button></div>
       </div>
 
-      <!-- S5 -->
-      <div class="step" id="s5">
-        <div class="step-label">Шаг 5 из 9</div>
+      <!-- S6 -->
+      <div class="step" id="s6">
+        <div class="step-label">Шаг 6 из 11</div>
         <div class="step-title">Каналы привлечения</div>
         <div class="step-sub">Через что планируете получать пользователей? (можно несколько)</div>
         <div class="opt-grid" id="q5">
@@ -336,12 +345,12 @@ textarea{min-height:54px}
           <button class="opt" data-val="community"><i class="ti ti-messages opt-icon"></i>Комьюнити</button>
           <button class="opt" data-val="influencer"><i class="ti ti-star opt-icon"></i>Инфлюенсеры</button>
         </div>
-        <div class="nav"><button class="btn-back" onclick="back(5)">← Назад</button><button class="btn-next" id="n5" disabled onclick="next(5)">Далее <i class="ti ti-arrow-right"></i></button></div>
+        <div class="nav"><button class="btn-back" onclick="back(6)">← Назад</button><button class="btn-next" id="n5" disabled onclick="next(6)">Далее <i class="ti ti-arrow-right"></i></button></div>
       </div>
 
-      <!-- S6 -->
-      <div class="step" id="s6">
-        <div class="step-label">Шаг 6 из 9</div>
+      <!-- S7 -->
+      <div class="step" id="s7">
+        <div class="step-label">Шаг 7 из 11</div>
         <div class="step-title">Юнит-экономика</div>
         <div class="step-sub">Не знаете точное число — нажмите «Не знаю». Мы применим типовые значения и явно пометим их в отчёте.</div>
         <div class="field-wrap">
@@ -399,12 +408,12 @@ textarea{min-height:54px}
           <div class="field-desc">В каких странах или регионах планируете продавать в первую очередь?</div>
           <input type="text" id="q6f" placeholder="Например: Россия + СНГ">
         </div>
-        <div class="nav"><button class="btn-back" onclick="back(6)">← Назад</button><button class="btn-next" id="n6" onclick="next(6)">Далее <i class="ti ti-arrow-right"></i></button></div>
+        <div class="nav"><button class="btn-back" onclick="back(7)">← Назад</button><button class="btn-next" id="n6" onclick="next(7)">Далее <i class="ti ti-arrow-right"></i></button></div>
       </div>
 
-      <!-- S7 -->
-      <div class="step" id="s7">
-        <div class="step-label">Шаг 7 из 9</div>
+      <!-- S8 -->
+      <div class="step" id="s8">
+        <div class="step-label">Шаг 8 из 11</div>
         <div class="step-title">Конкуренты</div>
         <div class="step-sub">Помогите оценить конкурентную позицию</div>
         <div class="field-label-main" style="margin-bottom:8px">Есть ли гиганты (Google, Сбер, Яндекс) в нише?</div>
@@ -422,12 +431,12 @@ textarea{min-height:54px}
           <button class="opt" data-val="network">Сетевой эффект</button>
           <button class="opt" data-val="brand">Бренд / доверие</button>
         </div>
-        <div class="nav"><button class="btn-back" onclick="back(7)">← Назад</button><button class="btn-next" id="n7" disabled onclick="next(7)">Далее <i class="ti ti-arrow-right"></i></button></div>
+        <div class="nav"><button class="btn-back" onclick="back(8)">← Назад</button><button class="btn-next" id="n7" disabled onclick="next(8)">Далее <i class="ti ti-arrow-right"></i></button></div>
       </div>
 
-      <!-- S8 -->
-      <div class="step" id="s8">
-        <div class="step-label">Шаг 8 из 10</div>
+      <!-- S9 -->
+      <div class="step" id="s9">
+        <div class="step-label">Шаг 9 из 11</div>
         <div class="step-title">Опыт команды</div>
         <div class="step-sub">Влияет на оценку критерия «исполнение»</div>
         <div class="opt-grid" id="q8">
@@ -436,12 +445,12 @@ textarea{min-height:54px}
           <button class="opt" data-val="startup">Опыт в стартапах, но не в этой нише</button>
           <button class="opt" data-val="none">Совсем новичок в этом</button>
         </div>
-        <div class="nav"><button class="btn-back" onclick="back(8)">← Назад</button><button class="btn-next" id="n8" disabled onclick="next(8)">Далее <i class="ti ti-arrow-right"></i></button></div>
+        <div class="nav"><button class="btn-back" onclick="back(9)">← Назад</button><button class="btn-next" id="n8" disabled onclick="next(9)">Далее <i class="ti ti-arrow-right"></i></button></div>
       </div>
 
-      <!-- S9 — Размер команды -->
-      <div class="step" id="s9">
-        <div class="step-label">Шаг 9 из 10</div>
+      <!-- S10 — Размер команды -->
+      <div class="step" id="s10">
+        <div class="step-label">Шаг 10 из 11</div>
         <div class="step-title">Размер команды</div>
         <div class="step-sub">Влияет на реалистичность прогноза и оценку исполнения — один человек и команда из пяти решают разные задачи</div>
         <div class="opt-grid" id="q9team">
@@ -450,12 +459,12 @@ textarea{min-height:54px}
           <button class="opt" data-val="small"><i class="ti ti-users-group opt-icon"></i>Небольшая команда (3–5)</button>
           <button class="opt" data-val="medium"><i class="ti ti-building opt-icon"></i>Команда 6–15 человек</button>
         </div>
-        <div class="nav"><button class="btn-back" onclick="back(9)">← Назад</button><button class="btn-next" id="n9team" disabled onclick="next(9)">Далее <i class="ti ti-arrow-right"></i></button></div>
+        <div class="nav"><button class="btn-back" onclick="back(10)">← Назад</button><button class="btn-next" id="n9team" disabled onclick="next(10)">Далее <i class="ti ti-arrow-right"></i></button></div>
       </div>
 
-      <!-- S10 -->
-      <div class="step" id="s10">
-        <div class="step-label">Шаг 10 из 10</div>
+      <!-- S11 -->
+      <div class="step" id="s11">
+        <div class="step-label">Шаг 11 из 11</div>
         <div class="step-title">Стадия проекта</div>
         <div class="step-sub">Где вы сейчас?</div>
         <div class="opt-grid" id="q9">
@@ -464,11 +473,11 @@ textarea{min-height:54px}
           <button class="opt" data-val="mvp"><i class="ti ti-hammer opt-icon"></i>Строю MVP</button>
           <button class="opt" data-val="launched"><i class="ti ti-rocket opt-icon"></i>Уже запущен</button>
         </div>
-        <div class="nav"><button class="btn-back" onclick="back(10)">← Назад</button><button class="btn-next" id="n9" disabled onclick="startAnalyze()">Анализировать <i class="ti ti-brain"></i></button></div>
+        <div class="nav"><button class="btn-back" onclick="back(11)">← Назад</button><button class="btn-next" id="n9" disabled onclick="startAnalyze()">Анализировать <i class="ti ti-brain"></i></button></div>
       </div>
 
       <!-- ANALYZING -->
-      <div class="step" id="s11">
+      <div class="step" id="s12">
         <div class="analyzing">
           <div class="pulse-wrap">
             <div class="pulse-ring"></div>
@@ -488,7 +497,7 @@ textarea{min-height:54px}
       </div>
 
       <!-- RESULT -->
-      <div class="step" id="s12">
+      <div class="step" id="s13">
         <div id="result-content"></div>
         <div class="export-section">
           <button class="btn-export" onclick="doExport()"><i class="ti ti-download"></i> Скачать отчёт (HTML-файл)</button>
@@ -501,7 +510,7 @@ textarea{min-height:54px}
       </div>
 
       <!-- HISTORY -->
-      <div class="step" id="s14">
+      <div class="step" id="s15">
         <div id="history-list-view">
           <div class="step-title">Моя история</div>
           <div class="step-sub">Последние анализы ваших идей</div>
@@ -519,7 +528,7 @@ textarea{min-height:54px}
       </div>
 
       <!-- FEEDBACK -->
-      <div class="step" id="s13">
+      <div class="step" id="s14">
         <div class="step-title">Оцените отчёт</div>
         <div class="step-sub">Ваш отзыв поможет сделать анализ точнее</div>
         <div class="field-wrap">
@@ -542,7 +551,7 @@ textarea{min-height:54px}
           </div>
         </div>
         <button class="btn-next" style="width:100%;justify-content:center" id="fsubmit" disabled onclick="submitFeedback()">Отправить отзыв</button>
-        <button class="btn-restart" onclick="showStep(12)">← Назад к отчёту</button>
+        <button class="btn-restart" onclick="showStep(13)">← Назад к отчёту</button>
       </div>
     </div>
   </div>
@@ -591,7 +600,7 @@ function switchTab(t){
 }
 
 // ===== STEP SETUP =====
-const PROG={1:10,2:20,3:30,4:40,5:50,6:60,7:70,8:80,9:90,10:100};
+const PROG={1:9,2:18,3:27,4:36,5:45,6:55,7:64,8:73,9:82,10:91,11:100};
 
 function single(gid,key,nb){
   document.getElementById(gid).querySelectorAll('.opt').forEach(function(b){
@@ -713,6 +722,7 @@ function applyStateToUI(){
   if(S.q9)document.getElementById('n9').disabled=false;
 
   setPlaceholders();
+  renderIdeaRecap();
   Object.keys(BM_FIELD_MAP).forEach(function(fieldId){renderBenchmarkNote(fieldId)});
 }
 
@@ -726,7 +736,7 @@ function restoreProgress(){
     }catch(e){return}
     applyStateToUI();
     var savedStep=parseInt(result.quiz_step,10);
-    if(savedStep>=1&&savedStep<=10)showStep(savedStep);
+    if(savedStep>=1&&savedStep<=11)showStep(savedStep);
   });
 }
 restoreProgress();
@@ -845,12 +855,21 @@ function showStep(n){
   var p=PROG[n];
   if(p){
     document.getElementById('prog').style.width=p+'%';
-    document.getElementById('step-counter').textContent='Шаг '+n+' из 10';
+    document.getElementById('step-counter').textContent='Шаг '+n+' из 11';
     document.getElementById('step-pct').textContent=p+'%';
   }
-  if(n>=1&&n<=10)CURRENT_STEP=n;
+  if(n>=1&&n<=11)CURRENT_STEP=n;
 }
-function next(n){if(n===5)setPlaceholders();showStep(n+1);saveProgress();}
+function renderIdeaRecap(){
+  var parts=[];
+  if(S.q3a)parts.push('Продукт: '+S.q3a+'.');
+  if(S.q3b)parts.push('Он решает проблему — '+S.q3b+'.');
+  if(S.q3c)parts.push('Актуально сейчас потому что '+S.q3c+'.');
+  if(S.q3d)parts.push('Аудитория: '+S.q3d+'.');
+  if(S.q3e)parts.push('Ближайший конкурент: '+S.q3e+'.');
+  document.getElementById('idea-recap').textContent=parts.length?parts.join(' '):'Заполни хотя бы одно поле на предыдущем шаге, чтобы увидеть пересказ.';
+}
+function next(n){if(n===1)renderIdeaRecap();if(n===6)setPlaceholders();showStep(n+1);saveProgress();}
 function back(n){showStep(n-1);saveProgress();}
 
 // ===== COMPUTE =====
@@ -1045,7 +1064,7 @@ function toggleScore(idx){
 
 // ===== ANALYZE =====
 function startAnalyze(){
-  showStep(11);
+  showStep(12);
   var items=['ai1','ai2','ai3','ai4','ai5'];
   var i=0;
   function tick(){
@@ -1071,7 +1090,7 @@ async function checkCreditsOnLoad(){
     if(!resp.ok)return;
     var data=await resp.json();
     if(data.can_analyze===false){
-      showStep(12);
+      showStep(13);
       showNoCreditsScreen([]);
     }
   }catch(e){
@@ -1140,7 +1159,7 @@ async function runAI(){
     if(warnings.length>0)html=showSanityWarningsHTML(warnings);
     document.getElementById('result-content').innerHTML=html+renderReport(result,c,S);
     renderResultCTA(result.verdict);
-    showStep(12);
+    showStep(13);
     clearProgress();
   }catch(e){
     lastC=c;
@@ -1173,7 +1192,7 @@ function showNoCreditsScreen(warnings,customText){
   html+='<button class="btn-next" style="width:100%;justify-content:center;margin-top:0.5rem" onclick="createPaymentInvoice(399)"><i class="ti ti-stars"></i> Пакет 5 анализов за 399 ⭐</button>';
   html+='<button class="btn-restart" onclick="restartQuiz()">↺ Начать заново</button>';
   document.getElementById('result-content').innerHTML=html;
-  showStep(12);
+  showStep(13);
 }
 
 async function createPaymentInvoice(stars){
@@ -1212,7 +1231,7 @@ function showErrorScreen(errMsg,warnings,c){
   html+='<button class="btn-next" style="width:100%;justify-content:center;margin-top:1rem" onclick="startAnalyze()"><i class="ti ti-refresh"></i> Попробовать снова</button>';
   html+='<button class="btn-restart" onclick="restartQuiz()">↺ Начать заново</button>';
   document.getElementById('result-content').innerHTML=html;
-  showStep(12);
+  showStep(13);
 }
 
 function buildBenchmarkBlock(s,c){
@@ -1382,11 +1401,11 @@ function escapeHtml(s){
 
 function showHistoryScreen(){
   var activeEl=document.querySelector('.step.active');
-  if(activeEl&&activeEl.id!=='s14'){
+  if(activeEl&&activeEl.id!=='s15'){
     var n=parseInt(activeEl.id.replace('s',''),10);
     if(!isNaN(n))PREV_STEP_BEFORE_HISTORY=n;
   }
-  showStep(14);
+  showStep(15);
   showHistoryList();
   loadHistory();
 }
@@ -1484,7 +1503,7 @@ function updateFeedbackSubmit(){
 }
 
 function showFeedbackScreen(){
-  showStep(13);
+  showStep(14);
 }
 
 async function submitFeedback(){
@@ -1505,7 +1524,7 @@ async function submitFeedback(){
 }
 
 function showFeedbackThanks(){
-  document.getElementById('s13').innerHTML=
+  document.getElementById('s14').innerHTML=
     '<div style="text-align:center;padding:3rem 0">'+
       '<div style="font-size:40px;margin-bottom:1rem">🙏</div>'+
       '<div style="font-size:18px;font-weight:600;margin-bottom:8px">Спасибо за фидбэк!</div>'+
