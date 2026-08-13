@@ -956,9 +956,10 @@ function compute(s){
     ?{min:price,max:price,avg:price,source:'user'}
     :(benchmarks?{min:benchmarks.check_range.min,max:benchmarks.check_range.max,avg:benchmarks.check_range.avg,source:'benchmark'}:{min:0,max:0,avg:0,source:'benchmark'});
 
-  var customersBear=cacObj.max>0?Math.max(0,Math.round(burn/cacObj.max)):0;
-  var customersBase=cacObj.avg>0?Math.max(0,Math.round(burn/cacObj.avg)):0;
-  var customersBull=cacObj.min>0?Math.max(0,Math.round(burn/cacObj.min)):0;
+  var breakEvenCustomers=checkObj.avg>0?Math.ceil(burn/checkObj.avg):0;
+  var customersBear=breakEvenCustomers;
+  var customersBase=Math.round(breakEvenCustomers*2.5);
+  var customersBull=Math.round(breakEvenCustomers*6.5);
 
   var calculatedNumbers={
     cac:cacObj,
@@ -967,13 +968,13 @@ function compute(s){
     payback_months:payback||0,
     churn_monthly:churn||0,
     runway_months:runway||0,
-    break_even_customers:checkObj.avg>0?Math.ceil(burn/checkObj.avg):0,
+    break_even_customers:breakEvenCustomers,
     monthly_marketing_budget:Math.round(cacObj.avg*customersBase),
     recommended_ltv_cac_ratio:3.0,
     forecast:{
-      bear:{arr:Math.round(customersBear*12*checkObj.min),customers:customersBear,source:'benchmark'},
-      base:{arr:Math.round(customersBase*12*checkObj.avg),customers:customersBase,source:'blended'},
-      bull:{arr:Math.round(customersBull*12*checkObj.max),customers:customersBull,source:'user'}
+      bear:{arr:Math.round(customersBear*12*checkObj.avg),customers:customersBear,source:'break-even'},
+      base:{arr:Math.round(customersBase*12*checkObj.avg),customers:customersBase,source:'break-even x2.5'},
+      bull:{arr:Math.round(customersBull*12*checkObj.avg),customers:customersBull,source:'break-even x6.5'}
     }
   };
 
