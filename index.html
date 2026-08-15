@@ -1320,16 +1320,23 @@ function buildBenchmarkBlock(s,c){
   var bm=c.benchmarks;
   if(!bm)return '\n\nБЕНЧМАРКИ НИШИ: бенчмарк недоступен';
   var cacVal=num(s.q6b),churnVal=num(s.q6d),checkVal=num(s.q6a);
+  var sym=s.currency||'$';
+  var isUsd=!s.currency||s.currency==='$';
   var cacDevStr='';
-  if(cacVal&&bm.cac_range.avg){
+  if(isUsd&&cacVal&&bm.cac_range.avg){
     var cacDev=Math.round((cacVal-bm.cac_range.avg)/bm.cac_range.avg*100);
     cacDevStr=' (отклонение '+(cacDev>0?'+':'')+cacDev+'%)';
   }
-  var sym=s.currency||'$';
+  var cacLine=isUsd?
+    'CAC норма: $'+bm.cac_range.min+'-$'+bm.cac_range.max+', пользователь указал '+(cacVal?sym+cacVal:'нет данных')+cacDevStr:
+    'CAC: пользователь указал '+(cacVal?sym+cacVal:'нет данных')+' (валюта не $, сравнение с $-бенчмарком не проводится)';
+  var checkLine=isUsd?
+    'Чек норма: $'+bm.check_range.min+'-$'+bm.check_range.max+', пользователь указал '+(checkVal?sym+checkVal:'нет данных'):
+    'Чек: пользователь указал '+(checkVal?sym+checkVal:'нет данных')+' (валюта не $, сравнение с $-бенчмарком не проводится)';
   return '\n\nБЕНЧМАРКИ НИШИ ('+bm.niche_label+', бенчмарк западного рынка, в $):\n'+
-    'CAC норма: $'+bm.cac_range.min+'-$'+bm.cac_range.max+', пользователь указал '+(cacVal?sym+cacVal:'нет данных')+cacDevStr+'\n'+
+    cacLine+'\n'+
     'Churn норма: '+bm.churn_range.min+'-'+bm.churn_range.max+'%, пользователь указал '+(churnVal?churnVal+'%':'нет данных')+'\n'+
-    'Чек норма: $'+bm.check_range.min+'-$'+bm.check_range.max+', пользователь указал '+(checkVal?sym+checkVal:'нет данных');
+    checkLine;
 }
 function buildDataReliabilityBlock(s,c){
   var labels={q6a:'Чек',q6b:'CAC',q6c:'LTV',q6d:'Churn',q6e:'Бюджет'};
