@@ -13,7 +13,7 @@
 :root{
   --bg:#0F0F13;--bg2:#1A1A24;--bg3:#22222F;--bg4:#2A2A3A;
   --border:#2E2E3E;--border2:#3A3A4E;
-  --text:#F0EEF8;--text2:#9997B0;--text3:#5C5A72;
+  --text:#F0EEF8;--text2:#9997B0;--text3:#8f8da8;
   --accent:#7C6FFF;--accent-bg:rgba(124,111,255,0.12);--accent-border:rgba(124,111,255,0.35);
   --green:#00C98D;--green-bg:rgba(0,201,141,0.1);--green-border:rgba(0,201,141,0.3);
   --yellow:#FFB020;--yellow-bg:rgba(255,176,32,0.1);--yellow-border:rgba(255,176,32,0.3);
@@ -169,6 +169,7 @@ textarea{min-height:54px}
 
 /* FORECAST */
 .forecast-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:1rem}
+@media (max-width:420px){.forecast-grid{grid-template-columns:1fr}}
 .fc-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px}
 .fc-scenario{font-size:11px;color:var(--text3);margin-bottom:6px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em}
 .fc-num{font-size:19px;font-weight:700;margin-bottom:2px}
@@ -254,7 +255,7 @@ textarea{min-height:54px}
 
       <!-- S1 -->
       <div class="step active" id="s1">
-        <div id="rework-banner" class="rework-banner" style="display:none">🔧 Вы дорабатываете идею — пройдите квиз заново с учётом изменений</div>
+        <div id="rework-banner" class="rework-banner" style="display:none">🔧 Ты дорабатываешь идею — пройди квиз заново с учётом изменений</div>
         <div class="step-label">Шаг 1 из 12</div>
         <div class="step-title">Идея и контекст</div>
         <div class="step-sub">Три коротких ответа дают намного точнее анализ, чем один абзац</div>
@@ -262,7 +263,7 @@ textarea{min-height:54px}
         <div class="field-wrap"><div class="field-label-main">Какую боль решает?</div><textarea id="q3b" rows="2" placeholder="Например: фрилансеры тратят 3–5 часов в неделю на административные задачи"></textarea></div>
         <div class="field-wrap"><div class="field-label-main">Почему именно сейчас?</div><textarea id="q3c" rows="2" placeholder="Например: AI-модели стали точными и дешёвыми для юридических текстов"></textarea></div>
         <div class="row2">
-          <div class="field-wrap"><div class="field-label-main">Целевая аудитория</div><input type="text" id="q3d" placeholder="Кто ваш клиент?"></div>
+          <div class="field-wrap"><div class="field-label-main">Целевая аудитория</div><input type="text" id="q3d" placeholder="Кто твой клиент?"></div>
           <div class="field-wrap"><div class="field-label-main">Ключевой конкурент</div><input type="text" id="q3e" placeholder="Главная альтернатива?"></div>
         </div>
         <div class="nav"><div></div><button class="btn-next" id="n3" onclick="next(1)">Далее <i class="ti ti-arrow-right"></i></button></div>
@@ -284,7 +285,7 @@ textarea{min-height:54px}
       <div class="step" id="s3">
         <div class="step-label">Шаг 3 из 12</div>
         <div class="step-title">Тип бизнес-модели</div>
-        <div class="step-sub">Выберите основной формат вашей идеи</div>
+        <div class="step-sub">Выбери основной формат своей идеи</div>
         <div class="opt-grid" id="q1">
           <button class="opt" data-val="marketplace"><i class="ti ti-arrows-exchange opt-icon"></i>Маркетплейс</button>
           <button class="opt" data-val="saas"><i class="ti ti-cloud opt-icon"></i>SaaS / подписка</button>
@@ -300,7 +301,7 @@ textarea{min-height:54px}
       <div class="step" id="s4">
         <div class="step-label">Шаг 4 из 12</div>
         <div class="step-title">Ниша</div>
-        <div class="step-sub">Выберите все подходящие категории</div>
+        <div class="step-sub">Выбери все подходящие категории</div>
         <div class="opt-grid" id="q2">
           <button class="opt" data-val="fintech"><i class="ti ti-building-bank opt-icon"></i>Финтех</button>
           <button class="opt" data-val="medtech"><i class="ti ti-heart-rate-monitor opt-icon"></i>Медтех</button>
@@ -338,7 +339,7 @@ textarea{min-height:54px}
       <div class="step" id="s6">
         <div class="step-label">Шаг 6 из 12</div>
         <div class="step-title">Каналы привлечения</div>
-        <div class="step-sub">Через что планируете получать пользователей? (можно несколько)</div>
+        <div class="step-sub">Через что планируешь получать пользователей? (можно несколько)</div>
         <div class="opt-grid" id="q5">
           <button class="opt" data-val="seo"><i class="ti ti-search opt-icon"></i>SEO / контент</button>
           <button class="opt" data-val="paid_ads"><i class="ti ti-speakerphone opt-icon"></i>Платная реклама</button>
@@ -358,7 +359,7 @@ textarea{min-height:54px}
       <div class="step" id="s7">
         <div class="step-label">Шаг 7 из 12</div>
         <div class="step-title">Юнит-экономика</div>
-        <div class="step-sub">Не знаете точное число — нажмите «Не знаю». Мы применим типовые значения и явно пометим их в отчёте.</div>
+        <div class="step-sub">Не знаешь точное число — нажми «Не знаю». Мы применим типовые значения и явно пометим их в отчёте.</div>
         <div class="field-wrap">
           <div class="field-label-main">Валюта</div>
           <div class="opt-grid" id="q6cur" style="grid-template-columns:repeat(4,1fr);margin-bottom:8px">
@@ -379,14 +380,14 @@ textarea{min-height:54px}
         </div>
         <div class="field-wrap">
           <div class="field-label">CAC — стоимость привлечения клиента</div>
-          <div class="field-desc">Сколько вы тратите на рекламу и маркетинг, чтобы один новый клиент совершил покупку?</div>
+          <div class="field-desc">Сколько ты тратишь на рекламу и маркетинг, чтобы один новый клиент совершил покупку?</div>
           <div class="num-row"><span class="cur-sym" id="cur-b"></span><input type="number" id="q6b" min="0" step="any" placeholder="800"><button class="btn-unknown" data-t="q6b" data-n="n6b" onclick="toggleUnknown(this)">Не знаю</button></div>
           <div class="field-note" id="n6b">Без CAC невозможен расчёт LTV/CAC ratio — ключевого индикатора экономики.</div>
           <div class="bm-note" id="bm-q6b"></div>
         </div>
         <div class="field-wrap">
           <div class="field-label">LTV — пожизненная ценность клиента</div>
-          <div class="field-desc">Сколько денег в сумме приносит один клиент за всё время, пока он пользуется вашим продуктом?</div>
+          <div class="field-desc">Сколько денег в сумме приносит один клиент за всё время, пока он пользуется твоим продуктом?</div>
           <div class="num-row"><span class="cur-sym" id="cur-c"></span><input type="number" id="q6c" min="0" step="any" placeholder="6000"><button class="btn-unknown" data-t="q6c" data-n="n6c" onclick="toggleUnknown(this)">Не знаю</button></div>
           <div class="field-note" id="n6c">Если не знаете — рассчитаем по формуле LTV = чек ÷ churn. Будет помечено как расчётное.</div>
         </div>
@@ -394,7 +395,7 @@ textarea{min-height:54px}
           <div class="field-label">Ежемесячный отток клиентов</div>
           <div class="field-desc">Какой процент клиентов перестаёт платить каждый месяц? Например: 5 означает, что из 100 клиентов уходят 5 в месяц.</div>
           <div class="num-row"><input type="number" id="q6d" min="0" max="100" step="0.5" placeholder="5"><button class="btn-unknown" data-t="q6d" data-n="n6d" onclick="toggleUnknown(this)">Не знаю</button></div>
-          <div class="field-note" id="n6d">Применим типовой churn для вашей модели и явно пометим как предположение.</div>
+          <div class="field-note" id="n6d">Применим типовой churn для твоей модели и явно пометим как предположение.</div>
           <div class="bm-note" id="bm-q6d"></div>
         </div>
         <div class="field-wrap">
@@ -405,9 +406,9 @@ textarea{min-height:54px}
         </div>
         <div class="field-wrap">
           <div class="field-label">Runway</div>
-          <div class="field-desc">Сколько месяцев ваш стартап протянет на текущем бюджете, если не будет новых продаж?</div>
+          <div class="field-desc">Сколько месяцев твой стартап протянет на текущем бюджете, если не будет новых продаж?</div>
           <div class="num-row"><input type="number" id="q6g" min="0" step="1" placeholder="12" value="7"></div>
-          <div class="field-note">Сколько месяцев ваш стартап может работать на текущем запасе денег без новых доходов</div>
+          <div class="field-note">Сколько месяцев твой стартап может работать на текущем запасе денег без новых доходов</div>
         </div>
         <div class="field-wrap">
           <div class="field-label-main">Целевая география</div>
@@ -421,14 +422,14 @@ textarea{min-height:54px}
       <div class="step" id="s8">
         <div class="step-label">Шаг 8 из 12</div>
         <div class="step-title">Конкуренты</div>
-        <div class="step-sub">Помогите оценить конкурентную позицию</div>
+        <div class="step-sub">Помоги оценить конкурентную позицию</div>
         <div class="field-label-main" style="margin-bottom:8px">Есть ли гиганты (Google, Сбер, Яндекс) в нише?</div>
         <div class="opt-grid" id="q7a" style="margin-bottom:1.25rem">
           <button class="opt" data-val="yes">Да, есть</button>
           <button class="opt" data-val="indirect">Частично, косвенно</button>
           <button class="opt" data-val="no">Нет такого масштаба</button>
         </div>
-        <div class="field-label-main" style="margin-bottom:8px">Ваше главное конкурентное преимущество</div>
+        <div class="field-label-main" style="margin-bottom:8px">Твоё главное конкурентное преимущество</div>
         <div class="opt-grid" id="q7b">
           <button class="opt" data-val="price">Цена</button>
           <button class="opt" data-val="ux">Удобство / UX</button>
@@ -472,7 +473,7 @@ textarea{min-height:54px}
       <div class="step" id="s11">
         <div class="step-label">Шаг 11 из 12</div>
         <div class="step-title">Стадия проекта</div>
-        <div class="step-sub">Где вы сейчас?</div>
+        <div class="step-sub">Где ты сейчас?</div>
         <div class="opt-grid" id="q9">
           <button class="opt" data-val="idea"><i class="ti ti-bulb opt-icon"></i>Идея в голове</button>
           <button class="opt" data-val="validation"><i class="ti ti-checks opt-icon"></i>Валидирую рынок</button>
@@ -499,7 +500,7 @@ textarea{min-height:54px}
             <div class="pulse-ring"></div>
             <div class="pulse-inner"><i class="ti ti-brain"></i></div>
           </div>
-          <div style="font-size:16px;font-weight:600;margin-bottom:6px">Анализируем вашу идею...</div>
+          <div style="font-size:16px;font-weight:600;margin-bottom:6px">Анализируем твою идею...</div>
           <div style="font-size:13px;color:var(--text2);margin-bottom:1.5rem">JS считает числа детерминированно, Claude интерпретирует контекст</div>
           <ul class="analyze-list" id="alist">
             <li class="analyze-item" id="ai1"><i class="ti ti-clock"></i> Расчёт LTV/CAC, payback, runway</li>
@@ -528,7 +529,7 @@ textarea{min-height:54px}
       <div class="step" id="s16">
         <div id="history-list-view">
           <div class="step-title">Моя история</div>
-          <div class="step-sub">Последние анализы ваших идей</div>
+          <div class="step-sub">Последние анализы твоих идей</div>
           <div id="history-content"></div>
           <button class="btn-restart" onclick="backFromHistory()">← Назад</button>
         </div>
@@ -545,7 +546,7 @@ textarea{min-height:54px}
       <!-- FEEDBACK -->
       <div class="step" id="s15">
         <div class="step-title">Оцените отчёт</div>
-        <div class="step-sub">Ваш отзыв поможет сделать анализ точнее</div>
+        <div class="step-sub">Твой отзыв поможет сделать анализ точнее</div>
         <div class="field-wrap">
           <div class="field-label-main">Совпал ли вердикт с твоим мнением?</div>
           <div class="opt-grid" id="fq1">
@@ -1064,7 +1065,7 @@ function renderReport(r,c,st){
     monAudit='<div class="section-title">Аудит монетизации</div>'+
       '<div style="background:'+maBg+';border:1px solid '+maBorder+';border-radius:var(--radius-sm);padding:12px 14px">'+
         '<div style="font-size:12px;color:var(--text2);margin-bottom:6px">Выбранная модель: <b style="color:var(--text)">'+ma.chosen+'</b></div>'+
-        '<div style="font-size:13px;font-weight:500;color:'+maColor+';margin-bottom:4px">'+maIcon+' '+(ma.verdict==='optimal'?'Модель оптимальна для вашего случая':'Рекомендуем изменить модель')+'</div>'+
+        '<div style="font-size:13px;font-weight:500;color:'+maColor+';margin-bottom:4px">'+maIcon+' '+(ma.verdict==='optimal'?'Модель оптимальна для твоего случая':'Рекомендуем изменить модель')+'</div>'+
         (ma.recommended?'<div style="font-size:12px;color:var(--text2);margin-bottom:4px">Рекомендуем: <b style="color:var(--text)">'+ma.recommended+'</b></div>':'')+
         '<div style="font-size:12px;color:var(--text2);line-height:1.5">'+ma.reason+'</div>'+
       '</div>';
@@ -1085,10 +1086,20 @@ function renderReport(r,c,st){
     '</div>';
   }
 
+  // WHY THIS VERDICT
+  var reasonsHTML='';
+  if(r.verdict_reasons&&r.verdict_reasons.length){
+    reasonsHTML='<div style="font-size:12px;margin-top:10px;opacity:0.85">'+
+      '<div style="font-size:11px;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Почему такой вердикт</div>'+
+      '<ul style="margin:0;padding-left:18px">'+r.verdict_reasons.map(function(reason){return '<li style="margin-bottom:4px">'+reason+'</li>'}).join('')+'</ul>'+
+    '</div>';
+  }
+
   return '<div class="verdict-card '+vc+'">'+
     '<div class="verdict-eyebrow">Вердикт · '+r.score_total+'/100</div>'+
     '<div class="verdict-heading"><i class="ti '+vIcon+'"></i> '+vTitle+'</div>'+
     '<div class="verdict-text">'+r.summary+'</div>'+
+    reasonsHTML+
   '</div>'+
   drHTML+
   '<div class="section-title">Юнит-экономика — расчётные показатели</div>'+
@@ -1297,10 +1308,11 @@ function buildBenchmarkBlock(s,c){
     var cacDev=Math.round((cacVal-bm.cac_range.avg)/bm.cac_range.avg*100);
     cacDevStr=' (отклонение '+(cacDev>0?'+':'')+cacDev+'%)';
   }
-  return '\n\nБЕНЧМАРКИ НИШИ ('+bm.niche_label+'):\n'+
-    'CAC норма: $'+bm.cac_range.min+'-$'+bm.cac_range.max+', пользователь указал '+(cacVal?'$'+cacVal:'нет данных')+cacDevStr+'\n'+
+  var sym=s.currency||'$';
+  return '\n\nБЕНЧМАРКИ НИШИ ('+bm.niche_label+', бенчмарк западного рынка, в $):\n'+
+    'CAC норма: $'+bm.cac_range.min+'-$'+bm.cac_range.max+', пользователь указал '+(cacVal?sym+cacVal:'нет данных')+cacDevStr+'\n'+
     'Churn норма: '+bm.churn_range.min+'-'+bm.churn_range.max+'%, пользователь указал '+(churnVal?churnVal+'%':'нет данных')+'\n'+
-    'Чек норма: $'+bm.check_range.min+'-$'+bm.check_range.max+', пользователь указал '+(checkVal?'$'+checkVal:'нет данных');
+    'Чек норма: $'+bm.check_range.min+'-$'+bm.check_range.max+', пользователь указал '+(checkVal?sym+checkVal:'нет данных');
 }
 function buildDataReliabilityBlock(s,c){
   var labels={q6a:'Чек',q6b:'CAC',q6c:'LTV',q6d:'Churn',q6e:'Бюджет'};
@@ -1316,6 +1328,7 @@ function buildDataReliabilityBlock(s,c){
     '- остальные — введены пользователем: '+(rest.join(', ')||'нет');
 }
 function buildPrompt(s,c){
+  var sym=s.currency||'$';
   var fl=c.flags.map(function(f){return '- '+STRUCT_LABEL[f]}).join('\n')||'не выявлено';
   var q2Labels=s.q2.map(function(v){return v==='other'?(s.q2_other||'не уточнено'):v});
   var q4Label=s.q4==='other'?(s.q4_other||'не уточнено'):s.q4;
@@ -1340,21 +1353,21 @@ function buildPrompt(s,c){
   '\nRunway: '+(c.runway?c.runway+' мес.':'нет данных о бюджете')+
   buildBenchmarkBlock(s,c)+
   '\n\nРАСЧЁТНЫЕ ЗНАЧЕНИЯ (один источник истины):\n'+
-  'CAC: $'+c.calculatedNumbers.cac.min+'-$'+c.calculatedNumbers.cac.max+
-  ' (средний $'+c.calculatedNumbers.cac.avg+', источник: '+c.calculatedNumbers.cac.source+')\n'+
-  'Средний чек: $'+c.calculatedNumbers.check.min+'-$'+c.calculatedNumbers.check.max+'\n'+
-  'LTV: $'+c.calculatedNumbers.ltv.value+'\n'+
+  'CAC: '+sym+c.calculatedNumbers.cac.min+'-'+sym+c.calculatedNumbers.cac.max+
+  ' (средний '+sym+c.calculatedNumbers.cac.avg+', источник: '+c.calculatedNumbers.cac.source+')\n'+
+  'Средний чек: '+sym+c.calculatedNumbers.check.min+'-'+sym+c.calculatedNumbers.check.max+'\n'+
+  'LTV: '+sym+c.calculatedNumbers.ltv.value+'\n'+
   'Payback: '+c.calculatedNumbers.payback_months+' мес\n'+
-  'Чистый monthly burn: $'+c.burn+'\n'+
+  'Чистый monthly burn: '+sym+c.burn+'\n'+
   'Runway: '+c.calculatedNumbers.runway_months+' мес\n'+
   'Break-even (при CAC '+(Math.round(c.cac))+', чек '+Math.round(c.price)+'): '+
     c.calculatedNumbers.break_even_customers+' клиентов\n'+
-  'Рекомендуемый маркетинг-бюджет/мес: $'+c.calculatedNumbers.monthly_marketing_budget+'\n'+
+  'Рекомендуемый маркетинг-бюджет/мес: '+sym+c.calculatedNumbers.monthly_marketing_budget+'\n'+
   'Целевой LTV/CAC ratio: '+c.calculatedNumbers.recommended_ltv_cac_ratio+'x\n'+
-  '\nФОРКАСТ (12 месяцев):\n'+
-  'Bear (benchmark): $'+c.calculatedNumbers.forecast.bear.arr+'/год\n'+
-  'Base (blended): $'+c.calculatedNumbers.forecast.base.arr+'/год\n'+
-  'Bull (optimistic): $'+c.calculatedNumbers.forecast.bull.arr+'/год'+
+  '\nФОРКАСТ (12 месяцев). Используй валюту "'+sym+'" для всех сумм ниже:\n'+
+  'Bear (benchmark): '+sym+c.calculatedNumbers.forecast.bear.arr+'/год\n'+
+  'Base (blended): '+sym+c.calculatedNumbers.forecast.base.arr+'/год\n'+
+  'Bull (optimistic): '+sym+c.calculatedNumbers.forecast.bull.arr+'/год'+
   buildDataReliabilityBlock(s,c)+
   '\n\nСТРУКТУРНЫЕ РИСКИ АВТОДЕТЕКТ:\n'+fl+
   '\n\nАУДИТ МОНЕТИЗАЦИИ: '+
