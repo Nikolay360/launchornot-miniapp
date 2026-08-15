@@ -990,6 +990,16 @@ var CHAN_COLOR={Высокий:'var(--green)',Средний:'var(--yellow)',Н�
 var CHANNEL_KEY_LABELS={partnerships:'Партнёрства',social:'Соцсети',cold_outreach:'Холодные рассылки',content:'Контент',paid_ads:'Платная реклама',referral:'Рефералы',direct_sales:'Прямые продажи',community:'Сообщества',organic:'Органика',seo:'SEO',email:'Email',events:'События'};
 var STRUCT_LABEL={INTERMEDIARY_DILEMMA:'Маркетплейс: риск ухода сторон в прямые сделки',MARGIN_SQUEEZE:'Безлимитная подписка: риск отрицательной маржи',HIGH_CHURN:'Транзакционная: типичный churn 25–35% в месяц',REGULATORY_BLOCK:'Регулируемая ниша: вероятны лицензии и сертификации'};
 
+// Claude пишет bear_arr/base_arr/bull_arr свободным текстом и может не выдержать
+// валюту стабильно — форматируем сами из c.calculatedNumbers.forecast, чтобы
+// валюта в ARR-прогнозе была гарантированно верной, а не "обычно верной".
+function fmtArrCompact(n,sym){
+  n=Math.round(n);
+  if(n>=1000000)return '~'+(Math.round(n/100000)/10)+'M '+sym;
+  if(n>=1000)return '~'+Math.round(n/1000)+'K '+sym;
+  return '~'+n+' '+sym;
+}
+
 // ===== RENDER REPORT =====
 function renderReport(r,c,st){
   var vc=r.verdict==='Launch'?'v-launch':r.verdict==='Rework'?'v-rework':'v-reject';
@@ -1219,6 +1229,13 @@ async function runAI(){
     }
     if(!resp.ok)throw new Error('HTTP '+resp.status);
     var result=await resp.json();
+    if(result.forecast&&c.calculatedNumbers&&c.calculatedNumbers.forecast){
+      var sym=S.currency||'$';
+      var fc2=c.calculatedNumbers.forecast;
+      result.forecast.bear_arr=fmtArrCompact(fc2.bear.arr,sym);
+      result.forecast.base_arr=fmtArrCompact(fc2.base.arr,sym);
+      result.forecast.bull_arr=fmtArrCompact(fc2.bull.arr,sym);
+    }
     lastR=result;lastC=c;
     var html='';
     if(warnings.length>0)html=showSanityWarningsHTML(warnings);
