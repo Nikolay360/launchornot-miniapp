@@ -602,10 +602,18 @@ function clearProgress(){
 }
 
 // ===== TELEGRAM WEBAPP =====
-function getUserId(){
+// Raw signed initData string — the backend verifies this HMAC-side (bot/telegram_auth.py)
+// and derives user_id from it; it never trusts a client-supplied user_id anymore.
+function getInitData(){
   try{
-    return (TG&&TG.initDataUnsafe&&TG.initDataUnsafe.user&&TG.initDataUnsafe.user.id)||null;
-  }catch(e){return null;}
+    return (TG&&TG.initData)||'';
+  }catch(e){return '';}
+}
+
+function authHeaders(extra){
+  var h=extra||{};
+  h['X-Telegram-Init-Data']=getInitData();
+  return h;
 }
 
 // ===== TABS =====
@@ -1158,10 +1166,9 @@ var CHECK_CREDITS_URL=API_BASE+'/check-credits';
 
 // ===== CHECK CREDITS ON LOAD =====
 async function checkCreditsOnLoad(){
-  var userId=getUserId();
-  if(!userId)return;
+  if(!getInitData())return;
   try{
-    var resp=await fetch(CHECK_CREDITS_URL+'?user_id='+encodeURIComponent(userId));
+    var resp=await fetch(CHECK_CREDITS_URL,{headers:authHeaders()});
     if(!resp.ok)return;
     var data=await resp.json();
     if(data.can_analyze===false){
@@ -1219,8 +1226,8 @@ async function runAI(){
   try{
     var resp=await fetch(PROXY_URL,{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({answers:S,computed:c,prompt:prompt,user_id:getUserId()})
+      headers:authHeaders({'Content-Type':'application/json'}),
+      body:JSON.stringify({answers:S,computed:c,prompt:prompt})
     });
     if(resp.status===402){
       renderResultCTA(null);
@@ -1278,12 +1285,11 @@ function showNoCreditsScreen(warnings,customText){
 }
 
 async function createPaymentInvoice(stars){
-  var userId=getUserId();
   try{
     var resp=await fetch(INVOICE_URL,{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({user_id:userId,stars_amount:stars})
+      headers:authHeaders({'Content-Type':'application/json'}),
+      body:JSON.stringify({stars_amount:stars})
     });
     if(!resp.ok)throw new Error('HTTP '+resp.status);
     if(TG)TG.showAlert('Инвойс отправлен в чат с ботом');
@@ -1410,11 +1416,11 @@ async function sendReportToChat(analysisId,btn,hintEl){
   var originalText=btn?btn.innerHTML:'';
   if(btn){btn.disabled=true;btn.innerHTML='<i class="ti ti-loader"></i> Отправка...';}
   try{
-    var body={user_id:getUserId()};
+    var body={};
     if(analysisId!=null)body.analysis_id=analysisId;
     var resp=await fetch(SEND_REPORT_URL,{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:authHeaders({'Content-Type':'application/json'}),
       body:JSON.stringify(body)
     });
     if(!resp.ok)throw new Error('HTTP '+resp.status);
@@ -1451,10 +1457,9 @@ function restartQuiz(){sessionStorage.removeItem('reworkBanner');clearProgress()
 function startReworkFlow(){sessionStorage.setItem('reworkBanner','1');clearProgress();location.reload()}
 
 async function handleReworkClick(){
-  var userId=getUserId();
   var creditsLeft=0;
   try{
-    var resp=await fetch(CHECK_CREDITS_URL+'?user_id='+encodeURIComponent(userId));
+    var resp=await fetch(CHECK_CREDITS_URL,{headers:authHeaders()});
     if(resp.ok){var data=await resp.json();creditsLeft=data.credits_remaining||0;}
   }catch(e){}
   if(creditsLeft>0){
@@ -1522,13 +1527,12 @@ function showHistoryDetailView(){
 async function loadHistory(){
   var el=document.getElementById('history-content');
   el.innerHTML='<div style="text-align:center;color:var(--text3);padding:2rem 0">Загрузка...</div>';
-  var userId=getUserId();
-  if(!userId){
+  if(!getInitData()){
     el.innerHTML='<div style="text-align:center;color:var(--text3);padding:2rem 0">Не удалось определить пользователя</div>';
     return;
   }
   try{
-    var resp=await fetch(HISTORY_URL+'?user_id='+encodeURIComponent(userId));
+    var resp=await fetch(HISTORY_URL,{headers:authHeaders()});
     if(!resp.ok)throw new Error('HTTP '+resp.status);
     var data=await resp.json();
     renderHistory(data.items||[]);
@@ -1562,13 +1566,12 @@ async function openHistoryItem(id){
   var el=document.getElementById('history-detail-content');
   el.innerHTML='<div style="text-align:center;color:var(--text3);padding:2rem 0">Загрузка...</div>';
   showHistoryDetailView();
-  var userId=getUserId();
-  if(!userId){
+  if(!getInitData()){
     el.innerHTML='<div style="text-align:center;color:var(--text3);padding:2rem 0">Не удалось определить пользователя</div>';
     return;
   }
   try{
-    var resp=await fetch(API_BASE+'/history/'+encodeURIComponent(id)+'?user_id='+encodeURIComponent(userId));
+    var resp=await fetch(API_BASE+'/history/'+encodeURIComponent(id),{headers:authHeaders()});
     if(!resp.ok)throw new Error('HTTP '+resp.status);
     var data=await resp.json();
     el.innerHTML=renderReport(data,EMPTY_COMPUTED,{});
@@ -1607,8 +1610,8 @@ async function submitFeedback(){
   try{
     var resp=await fetch(FEEDBACK_URL,{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({user_id:getUserId(),verdict_correct:FB.verdict_correct,useful_feedback:FB.useful_feedback,would_pay:FB.would_pay})
+      headers:authHeaders({'Content-Type':'application/json'}),
+      body:JSON.stringify({verdict_correct:FB.verdict_correct,useful_feedback:FB.useful_feedback,would_pay:FB.would_pay})
     });
     if(!resp.ok)throw new Error('HTTP '+resp.status);
     showFeedbackThanks();
