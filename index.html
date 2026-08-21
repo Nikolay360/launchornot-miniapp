@@ -978,7 +978,8 @@ function compute(s){
     churn_monthly:churn||0,
     runway_months:runway||0,
     break_even_customers:breakEvenCustomers,
-    monthly_marketing_budget:Math.round(cacObj.avg*customersBase),
+    // customersBase — годовой таргет клиентов base-сценария, поэтому делим на 12
+    monthly_marketing_budget:Math.round(cacObj.avg*customersBase/12),
     recommended_ltv_cac_ratio:3.0,
     forecast:{
       bear:{arr:Math.round(customersBear*12*checkObj.avg),customers:customersBear,source:'break-even'},
@@ -1392,7 +1393,10 @@ function buildPrompt(s,c){
   'Runway: '+c.calculatedNumbers.runway_months+' мес\n'+
   'Break-even (при CAC '+(Math.round(c.cac))+', чек '+Math.round(c.price)+'): '+
     c.calculatedNumbers.break_even_customers+' клиентов\n'+
-  'Рекомендуемый маркетинг-бюджет/мес: '+sym+c.calculatedNumbers.monthly_marketing_budget+'\n'+
+  'Маркетинг-бюджет/мес под базовый 12-мес прогноз (CAC x клиенты base / 12): '+
+    sym+c.calculatedNumbers.monthly_marketing_budget+
+    ' — это средний темп трат за год при выходе на base-сценарий, а НЕ бюджет под какой-либо '+
+    'более короткий срок закрытия break-even\n'+
   'Целевой LTV/CAC ratio: '+c.calculatedNumbers.recommended_ltv_cac_ratio+'x\n'+
   '\nФОРКАСТ (12 месяцев). Используй валюту "'+sym+'" для всех сумм ниже:\n'+
   'Bear (benchmark): '+sym+c.calculatedNumbers.forecast.bear.arr+'/год\n'+
